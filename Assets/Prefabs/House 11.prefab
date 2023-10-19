@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2761758920910475305}
   - component: {fileID: 3841541928470775014}
   - component: {fileID: 5394485804712678416}
+  - component: {fileID: 5994227315128232482}
   m_Layer: 0
   m_Name: bat4-toiture.001
   m_TagString: Untagged
@@ -83,6 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &5994227315128232482
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253030498299254848}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2614994, y: 1.2872921, z: 0.15336451}
+  m_Center: {x: -3.130591, y: -2.448812, z: 0.2181795}
 --- !u!1 &2726520233002504566
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,6 +197,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5118362435619525390}
+  - component: {fileID: 6698052355792597665}
   m_Layer: 0
   m_Name: House 11
   m_TagString: Untagged
@@ -200,6 +223,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6698052355792597665
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6115771927867524977}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.7757695, y: 3.4083195, z: 7.3749657}
+  m_Center: {x: 2.161448, y: 1.7111745, z: 2.4045925}
 --- !u!1 &8526132665872530760
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,7 +255,7 @@ GameObject:
   - component: {fileID: 726076508302677321}
   - component: {fileID: 300695058411439726}
   - component: {fileID: 6804640653426325380}
-  - component: {fileID: 5104641151774812585}
+  - component: {fileID: 524366060774307695}
   m_Layer: 0
   m_Name: bat4-structure.001
   m_TagString: Untagged
@@ -284,17 +328,24 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &5104641151774812585
-MeshCollider:
+--- !u!65 &524366060774307695
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8526132665872530760}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -6570403500644658427, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 0.50352347, y: 1.2846675, z: 0.1558504}
+  m_Center: {x: 0.2421996, y: -0.0010657907, z: -0.07294255}

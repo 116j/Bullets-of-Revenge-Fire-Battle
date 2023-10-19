@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2691158032812077413}
   - component: {fileID: 7872290057554341629}
   - component: {fileID: 5582779747027381063}
-  - component: {fileID: 94748833517680134}
+  - component: {fileID: 3127219988203028736}
   m_Layer: 0
   m_Name: bat10-structure.002
   m_TagString: Untagged
@@ -84,20 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &94748833517680134
-MeshCollider:
+--- !u!65 &3127219988203028736
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 747039168326327784}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 7893298434345893439, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 0.48644638, y: 1.2696451, z: 0.17395093}
+  m_Center: {x: 0.010935783, y: 0.005204439, z: 0.086954504}
 --- !u!1 &2381785860064682847
 GameObject:
   m_ObjectHideFlags: 0
@@ -273,6 +280,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7990965889433828845}
+  - component: {fileID: 6491432978446302709}
   m_Layer: 0
   m_Name: House 4
   m_TagString: Untagged
@@ -299,6 +307,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6491432978446302709
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7990965889433828846}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7.1022577, y: 3.3785267, z: 7.234474}
+  m_Center: {x: 0.17200136, y: 0.2448054, z: -0.3074646}
 --- !u!1 &8254394765523438343
 GameObject:
   m_ObjectHideFlags: 0

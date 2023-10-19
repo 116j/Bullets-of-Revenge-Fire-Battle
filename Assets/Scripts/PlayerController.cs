@@ -1,46 +1,53 @@
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    CinemachineVirtualCamera moveCamera;
+    ShootScript gun;
     [SerializeField]
     CinemachineVirtualCamera aimCamera;
     //transform to rotate moveCamera
     [SerializeField]
     Transform cameraTarget;
     [SerializeField]
-    Image aimImage;
+    Transform aimTarget;
+    [SerializeField]
+    Canvas canvas;
+    [SerializeField]
+    GameObject aimImage;
+    [SerializeField]
+    LayerMask enemyLayerMask;
 
     PlayerInput m_input;
     Animator m_anim;
-    CharacterController m_ccontroller;
+    Rigidbody m_rb;
 
     //if player is in aiming mode
     bool m_isAiming = false;
+    bool m_isCrouched = false;
 
     readonly int m_HashCrouching = Animator.StringToHash("Crouching");
     readonly int m_HashShooting = Animator.StringToHash("Shooting");
+    readonly int m_HashAiming = Animator.StringToHash("Aiming");
     readonly int m_HashSpeed = Animator.StringToHash("Speed");
     readonly int m_HashVertical = Animator.StringToHash("Vertical");
     readonly int m_HashHorizontal = Animator.StringToHash("Horizontal");
 
     //player speed for run movement
-    readonly float m_playerRunSpeed = 5f;
+    readonly float m_playerRunSpeed = 5;
     //player speed for walk movment
-    readonly float m_playerWalkSpeed = 2f;
-    //speed for player rotation
-    readonly float m_playerTurn = 85f;
+    readonly float m_playerWalkSpeed = 2;
     //speed for player speed change
     readonly float m_speedChange = 10f;
     //speed for camnera turn change
-    readonly float m_cameraTurn = 6f;
+    readonly float m_cameraTurn = 7f;
+    readonly float m_cameraRotationSpeed = 90f;
     //upper border for camera movement
     readonly float m_upperCameraBorder = 60f;
     //upper border for camera movement
-    readonly float m_lowerCameraBorder = -30f;
+    readonly float m_lowerCameraBorder = -25f;
+    readonly float m_crouchOffset = 0.25f;
 
     //current player speed
     float m_currentPlayerSpeed;
@@ -51,13 +58,13 @@ public class PlayerController : MonoBehaviour
     float m_cameraYaw;
     //vector of current camera rotation
     Vector3 m_cameraChange;
-
+    Vector3 m_aimTarget;
     // Start is called before the first frame update
     void Start()
     {
         m_anim = GetComponent<Animator>();
         m_input = GetComponent<PlayerInput>();
-        m_ccontroller = GetComponent<CharacterController>();
+        m_rb = GetComponent<Rigidbody>();
     }
 
     /// <summary>
@@ -73,7 +80,6 @@ public class PlayerController : MonoBehaviour
             m_input.SetFireDone();
         }
 
-        Rotate(!m_isAiming && !Mathf.Approximately(m_input.Move.y, 0f), Time.fixedDeltaTime);
         Move();
     }
     /// <summary>
@@ -82,58 +88,94 @@ public class PlayerController : MonoBehaviour
     void LateUpdate()
     {
         MoveCamera();
-        Rotate(m_isAiming, Time.deltaTime);
-    }
-    /// <summary>
-    /// Rotate player based on condition
-    /// </summary>
-    /// <param name="condition">when to rotate player</param>
-    /// <param name="deltaTime">delta time (depends on update type)</param>
-    void Rotate(bool condition, float deltaTime)
-    {
-        if (!Mathf.Approximately(m_input.Look.sqrMagnitude, 0))
+
+        if (m_isAiming)
         {
-            if (condition)
-            {
-                transform.Rotate(transform.up * m_input.Look.x, deltaTime * m_playerTurn);
-            }
+            // Aim();
+            // transform.forward = Vector3.Slerp(transform.forward, new Vector3(cameraTarget.forward.x, 0f, cameraTarget.forward.z), Time.deltaTime * m_cameraTurn);
         }
     }
+
     /// <summary>
     /// Rotate camera around player (changes player's child's transform rotation)
     /// </summary>
     void MoveCamera()
     {
-        m_cameraPitch += m_input.Look.y * Time.deltaTime;
-        m_cameraYaw += m_input.Look.x * Time.deltaTime;
+        m_cameraPitch += m_input.Look.y * Time.deltaTime * m_cameraRotationSpeed;
+        m_cameraYaw += m_input.Look.x * Time.deltaTime * m_cameraRotationSpeed;
 
         //borders for vertical movement
-        m_cameraPitch = Mathf.Clamp(m_cameraPitch, -m_lowerCameraBorder, m_upperCameraBorder);
+        m_cameraPitch = Mathf.Clamp(m_cameraPitch, m_lowerCameraBorder, m_upperCameraBorder);
         //smoothly rotate transform
-        m_cameraChange = Vector3.Lerp(m_cameraChange, new Vector3(m_cameraPitch, m_cameraYaw, 0f), Time.deltaTime * m_cameraTurn);
+        m_cameraChange = Vector3.Slerp(m_cameraChange, new Vector3(m_cameraPitch, m_cameraYaw, 0f), Time.deltaTime * m_cameraTurn);
         cameraTarget.rotation = Quaternion.Euler(m_cameraChange);
+        aimTarget.localRotation = Quaternion.Euler(m_cameraChange.x, -20f, 0f);
     }
     /// <summary>
     /// Moves player and sets animator's parameters
     /// </summary>
     void Move()
     {
-        m_anim.SetBool(m_HashCrouching, m_input.Crouch);
+        //player move vector based on input
+        Vector3 move;
+        float nextSpeed = m_input.Run ? m_playerRunSpeed : m_playerWalkSpeed;
+        if (!m_isAiming)
+        {
+            move = m_input.Move.x * cameraTarget.right + m_input.Move.y * cameraTarget.forward;
+            move.y = 0f;
+
+            //rotate to face input direction relative to camera position
+            transform.forward = Vector3.Slerp(transform.forward, move, Time.fixedDeltaTime * m_cameraTurn);
+        }
+        else
+        {
+            move = m_input.Move.x * aimTarget.right + m_input.Move.y * aimTarget.forward;
+            transform.forward = Vector3.Slerp(transform.forward, new Vector3(cameraTarget.forward.x, 0f, cameraTarget.forward.z), Time.fixedDeltaTime * m_cameraTurn);
+            Aim();
+        }
+        move.y = 0f;
+        m_rb.velocity = move * m_currentPlayerSpeed;
+
+        if (m_input.Move == Vector2.zero)
+            nextSpeed = 0f;
         //smoothly change player speed
-        m_currentPlayerSpeed = Mathf.Lerp(m_currentPlayerSpeed, m_input.Run ? m_playerRunSpeed : m_playerWalkSpeed, Time.fixedDeltaTime * m_speedChange);
+        m_currentPlayerSpeed = Mathf.Lerp(m_currentPlayerSpeed, nextSpeed, Time.fixedDeltaTime * m_speedChange);
+        if (m_currentPlayerSpeed < 0.01f)
+            m_currentPlayerSpeed = 0f;
+
+        if (m_isCrouched != m_input.Crouch)
+        {
+            m_isCrouched = m_input.Crouch;
+            m_anim.SetBool(m_HashCrouching, m_isCrouched);
+            Vector3 offset = new(0f, aimTarget.localPosition.y + (m_isCrouched ? -1 : 1) * m_crouchOffset, 0f);
+            aimTarget.localPosition = cameraTarget.localPosition = offset;
+        }
         m_anim.SetFloat(m_HashHorizontal, m_input.Move.x * (m_currentPlayerSpeed / m_playerRunSpeed));
         m_anim.SetFloat(m_HashVertical, m_input.Move.y * (m_currentPlayerSpeed / m_playerRunSpeed));
         m_anim.SetFloat(m_HashSpeed, m_currentPlayerSpeed);
-        //player move vector based on input
-        Vector3 move = m_input.Move.x * transform.right + m_input.Move.y * transform.forward;
-        m_ccontroller.Move(m_currentPlayerSpeed * Time.fixedDeltaTime * move + Physics.gravity);
     }
+
     /// <summary>
     /// Autoaming
     /// </summary>
     void Aim()
     {
-
+        m_aimTarget = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 30f));
+        if (Physics.SphereCast(Camera.main.transform.position, 0.5f, m_aimTarget - Camera.main.transform.position, out RaycastHit hitInfo, 30f, enemyLayerMask))
+        {
+            Debug.DrawRay(gun.transform.position, hitInfo.point - gun.transform.position, Color.yellow);
+            if (Physics.SphereCast(gun.transform.position, 0.5f, hitInfo.point - gun.transform.position, out RaycastHit gunHitInfo, 30f, enemyLayerMask))
+            {
+                Vector3 targetDir = (gunHitInfo.transform.position - transform.position).normalized;
+                Quaternion playerRot = Quaternion.LookRotation(new Vector3(targetDir.x, 0f, targetDir.z));
+                targetDir = (gunHitInfo.transform.position - aimTarget.transform.position).normalized;
+                Quaternion aimRot = Quaternion.LookRotation(new Vector3(0f, targetDir.y, 0f));
+                transform.rotation = Quaternion.Lerp(transform.rotation, playerRot, Time.fixedDeltaTime * 5f);
+                aimTarget.localRotation = Quaternion.Lerp(aimTarget.localRotation, aimRot, Time.fixedDeltaTime * 5f);
+                m_aimTarget = gunHitInfo.point;
+                Debug.DrawLine(transform.position, m_aimTarget, Color.magenta);
+            }
+        }
     }
     /// <summary>
     /// Check if to start or stop aiming
@@ -143,16 +185,17 @@ public class PlayerController : MonoBehaviour
     {
         if (m_isAiming != isAiming)
         {
+            m_anim.SetBool(m_HashAiming, isAiming);
             m_isAiming = isAiming;
-            aimImage.enabled = m_isAiming;
+            aimImage.SetActive(m_isAiming);
             if (m_isAiming)
             {
                 aimCamera.Priority = 11;
-                Aim();
             }
             else
             {
                 aimCamera.Priority = 9;
+                // aimImage.transform.position = Vector3.zero;
             }
         }
     }
@@ -162,6 +205,7 @@ public class PlayerController : MonoBehaviour
     void Fire()
     {
         m_anim.SetTrigger(m_HashShooting);
+        gun.Fire(m_isAiming ? m_aimTarget : Vector3.zero);
     }
 
     void Die()
@@ -169,11 +213,17 @@ public class PlayerController : MonoBehaviour
 
     }
     //Detects collisions with character controller
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    void OnTriggerEnter(Collider other)
     {
-        if (hit.gameObject.CompareTag("bullet"))
-        {
 
-        }
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+       // Gizmos.DrawLine(gun.transform.position, m_aimTarget);
+        Gizmos.DrawLine(Camera.main.transform.position, m_aimTarget);
+
+    }
+
 }

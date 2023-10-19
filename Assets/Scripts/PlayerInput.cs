@@ -10,6 +10,8 @@ public class PlayerInput : MonoBehaviour
     private bool m_run;
     private bool m_aim;
 
+    private Vector2 m_mousePosition;
+
     public Vector2 Move => inputLocked ? Vector2.zero : m_move;
     public Vector2 Look => inputLocked ? Vector2.zero : m_look;
     public bool Run => !inputLocked && m_run;
@@ -17,8 +19,14 @@ public class PlayerInput : MonoBehaviour
     public bool Fire => !inputLocked && m_fire;
     public bool Aim => !inputLocked && m_aim;
 
+    public Vector2 MousePos => m_mousePosition;
 
     bool inputLocked = false;
+
+    private void Start()
+    {
+        Cursor.visible = false;
+    }
 
     public void OnMove(InputValue inputValue)
     {
@@ -53,5 +61,10 @@ public class PlayerInput : MonoBehaviour
     public void SetFireDone()
     {
         m_fire = false;
+    }
+
+    public void OnMousePosition(InputValue inputValue)
+    {
+        m_look = inputValue.Get<Vector2>();
     }
 }

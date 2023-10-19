@@ -1,14 +1,14 @@
 fileFormatVersion: 2
 guid: 8bed21aeef6762d45b7c8090242953e1
 ModelImporter:
-  serializedVersion: 22103
+  serializedVersion: 22200
   internalIDToNameTable: []
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: buildingsM
-    second: {fileID: 2100000, guid: 664c97f55b85a694e9033e20d70f2875, type: 2}
+    second: {fileID: 2100000, guid: 70b577113207424428ce521e6eebbb61, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -45,6 +45,7 @@ ModelImporter:
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
+    importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1

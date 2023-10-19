@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2837165458513569973}
   - component: {fileID: 5056880547371849873}
   - component: {fileID: 3722691420601466050}
+  - component: {fileID: 6902220818146486354}
   m_Layer: 0
   m_Name: bat2-structure.001
   m_TagString: Untagged
@@ -83,6 +84,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &6902220818146486354
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134946353861970462}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.9939063, y: 1.3011853, z: 0.17229976}
+  m_Center: {x: -0.13110957, y: -0.00048458576, z: -0.25069925}
 --- !u!1 &1826604480660100008
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,7 +114,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3362039988721507144}
-  - component: {fileID: 4098342579701965820}
+  - component: {fileID: 7011118088831228662}
   m_Layer: 0
   m_Name: House 8
   m_TagString: Untagged
@@ -119,20 +141,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &4098342579701965820
-MeshCollider:
+--- !u!65 &7011118088831228662
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1826604480660100008}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  serializedVersion: 3
+  m_Size: {x: 7.2289886, y: 10.215725, z: 7.228981}
+  m_Center: {x: 2.5372906, y: 5.0888653, z: -0.25252914}
 --- !u!1 &5473016541610119893
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,6 +256,7 @@ GameObject:
   - component: {fileID: 9121917365571760085}
   - component: {fileID: 8714378690180285871}
   - component: {fileID: 3749789597001261014}
+  - component: {fileID: 2558218628813729304}
   m_Layer: 0
   m_Name: bat2-fenetres.001
   m_TagString: Untagged
@@ -299,6 +329,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2558218628813729304
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5580568445812542528}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.7498182, y: 1.2982211, z: 0.15579912}
+  m_Center: {x: -0.16460735, y: -0.006414473, z: -0.84744465}
 --- !u!1 &6581178078997959978
 GameObject:
   m_ObjectHideFlags: 0
