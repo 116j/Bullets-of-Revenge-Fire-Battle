@@ -239,8 +239,19 @@
                 },
                 {
                     "name": "",
+                    "id": "1d4ca06e-8e98-4a95-971d-f1228b4e6f1a",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "0dd78df1-c34a-439d-9c78-b8c432b4c678",
-                    "path": "<Keyboard>/alt",
+                    "path": "<Keyboard>/c",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",

@@ -20,7 +20,7 @@ public class ShooterPlayerController : MonoBehaviour
     [SerializeField]
     Slider healthBar;
     [SerializeField]
-    LayerMask enemyLayerMask;
+    LayerMask enemyLayer;
 
     PlayerInput m_input;
     Animator m_anim;
@@ -207,14 +207,14 @@ public class ShooterPlayerController : MonoBehaviour
     void Aim()
     {
         m_aimTarget = Camera.main.transform.position + Camera.main.transform.forward * m_aimDistance;
-        if (Physics.Raycast(Camera.main.transform.position, m_aimTarget - Camera.main.transform.position, out RaycastHit camInfo, enemyLayerMask))
+        if (Physics.Raycast(Camera.main.transform.position, m_aimTarget - Camera.main.transform.position, out RaycastHit camInfo, enemyLayer))
         {
             m_aimTarget = camInfo.point;
             m_aimChange = Vector3.zero;
         }
-        else if (Physics.SphereCast(Camera.main.transform.position, 0.5f, m_aimTarget - Camera.main.transform.position, out RaycastHit hitInfo, m_aimDistance, enemyLayerMask))
+        else if (Physics.SphereCast(Camera.main.transform.position, 0.5f, m_aimTarget - Camera.main.transform.position, out RaycastHit hitInfo, m_aimDistance, enemyLayer))
         {
-            if (Physics.SphereCast(gun.transform.position,0.2f, hitInfo.point - gun.transform.position, out RaycastHit gunHitInfo, m_aimDistance, enemyLayerMask))
+            if (Physics.SphereCast(gun.transform.position,0.2f, hitInfo.point - gun.transform.position, out RaycastHit gunHitInfo, m_aimDistance, enemyLayer))
             {
                     m_aimChange = hitInfo.point - m_aimTarget;
                     m_aimChange.x = hitInfo.collider.transform.position.x - m_aimTarget.x;

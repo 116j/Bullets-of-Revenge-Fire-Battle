@@ -6,17 +6,17 @@ TagManager:
   tags:
   - Enemy
   - bullet
-  - Obstacle
+  - cover
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Enemy
-  - 
-  - 
+  - Cover
+  - Enviroment
   - 
   - 
   - 

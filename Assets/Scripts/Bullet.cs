@@ -8,7 +8,7 @@ public class Bullet : MonoBehaviour
     bool isPooled;
 
     float m_lifeTime = 0;
-
+    bool m_isActive = true;
     readonly float m_maxLifeTime = 4f;
 
     private void OnCollisionEnter(Collision collision)
@@ -18,18 +18,28 @@ public class Bullet : MonoBehaviour
 
     private void Update()
     {
-        m_lifeTime += Time.deltaTime;
-        if (m_lifeTime > m_maxLifeTime)
+        if (m_isActive)
         {
-            DestroyBullet();
+            m_lifeTime += Time.deltaTime;
+            if (m_lifeTime > m_maxLifeTime)
+            {
+                DestroyBullet();
+            }
         }
+    }
+
+    void RespawnBullet()
+    {
+
     }
 
     void DestroyBullet()
     {
         if (isPooled)
         {
-            gameObject.SetActive(false);
+            m_isActive = false;
+            m_lifeTime = 0;
+            gameObject.SetActive(m_isActive);
         }
         else
         {
