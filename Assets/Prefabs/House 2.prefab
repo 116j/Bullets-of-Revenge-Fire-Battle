@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 7591712421019968006}
   - component: {fileID: 3700057431133112771}
   - component: {fileID: 6653989645637365984}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat11-structure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3301455713905880717
 Transform:
@@ -116,12 +116,12 @@ GameObject:
   - component: {fileID: 1574769391420399556}
   - component: {fileID: 5741686079734942461}
   - component: {fileID: 8866652277681421103}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat11-toiture.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1574769391420399556
 Transform:
@@ -198,12 +198,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4713701229848337755}
   - component: {fileID: 6619516297323544531}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4713701229848337755
 Transform:
@@ -222,7 +222,7 @@ Transform:
   - {fileID: 3301455713905880717}
   - {fileID: 1574769391420399556}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6619516297323544531
 BoxCollider:
@@ -256,12 +256,12 @@ GameObject:
   - component: {fileID: 4288956647718447736}
   - component: {fileID: 671685484402723882}
   - component: {fileID: 6838460273570504491}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat11-moulure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4288956647718447736
 Transform:
@@ -339,12 +339,12 @@ GameObject:
   - component: {fileID: 7724779607859960276}
   - component: {fileID: 776891713268510819}
   - component: {fileID: 5756550091445992012}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat11-fenetres.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7724779607859960276
 Transform:

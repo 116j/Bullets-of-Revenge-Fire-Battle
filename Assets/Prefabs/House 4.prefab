@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 7872290057554341629}
   - component: {fileID: 5582779747027381063}
   - component: {fileID: 3127219988203028736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat10-structure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2691158032812077413
 Transform:
@@ -116,12 +116,12 @@ GameObject:
   - component: {fileID: 6975603102439460183}
   - component: {fileID: 6203814532604331607}
   - component: {fileID: 1119790146782624704}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat10-fenetres.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6975603102439460183
 Transform:
@@ -199,12 +199,12 @@ GameObject:
   - component: {fileID: 6009063540831852945}
   - component: {fileID: 6864164062055913220}
   - component: {fileID: 5490761784785643342}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat10-moulure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6009063540831852945
 Transform:
@@ -281,12 +281,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7990965889433828845}
   - component: {fileID: 6491432978446302709}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7990965889433828845
 Transform:
@@ -305,7 +305,7 @@ Transform:
   - {fileID: 2691158032812077413}
   - {fileID: 4162362037728948762}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6491432978446302709
 BoxCollider:
@@ -339,12 +339,12 @@ GameObject:
   - component: {fileID: 4162362037728948762}
   - component: {fileID: 7740095001775397111}
   - component: {fileID: 7540087641517954538}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat10-toiture.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4162362037728948762
 Transform:

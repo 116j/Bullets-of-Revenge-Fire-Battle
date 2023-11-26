@@ -4,21 +4,19 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Enemy
   - bullet
-  - cover
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Bullet
   - Water
   - UI
-  - Enemy
-  - Cover
   - Enviroment
-  - 
-  - 
+  - Cover
+  - Enemy
+  - Player
+  - Spot
   - 
   - 
   - 

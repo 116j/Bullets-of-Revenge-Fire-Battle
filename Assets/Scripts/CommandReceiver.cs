@@ -4,10 +4,10 @@ using UnityEngine.Events;
 public class CommandReceiver : MonoBehaviour
 {
     [SerializeField]
-    UnityEvent command;
+    UnityEvent<Vector3> command;
 
-    public void Receive()
+    public void Receive(Vector3 location)
     {
-        command.Invoke();
+        command.Invoke(location);
     }
 }

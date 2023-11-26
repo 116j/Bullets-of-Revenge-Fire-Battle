@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 5684606212747290133}
   - component: {fileID: 5668980375150636319}
   - component: {fileID: 720296229624589193}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat8-structure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4663681042759666924
 Transform:
@@ -92,9 +92,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4403626155740525615}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 4.920683, y: 8.204075, z: 6.598162}
   m_Center: {x: -2.3943176, y: -0.00000047683716, z: 3.2990923}
 --- !u!1 &6468176351506994720
@@ -108,12 +116,12 @@ GameObject:
   - component: {fileID: 7941960088636150126}
   - component: {fileID: 4674739979402610536}
   - component: {fileID: 2114579579808971532}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat8-toiture.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7941960088636150126
 Transform:
@@ -191,12 +199,12 @@ GameObject:
   - component: {fileID: 3969326701295274302}
   - component: {fileID: 6294670841562783847}
   - component: {fileID: 8462418529962566938}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat8-fenetres.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3969326701295274302
 Transform:
@@ -272,12 +280,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6701098402377740154}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6701098402377740154
 Transform:
@@ -288,7 +296,7 @@ Transform:
   m_GameObject: {fileID: 6701098402377740155}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -18.57, y: 1.96, z: 34.65}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.0707005, y: 1.0707, z: 1.8843518}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3969326701295274302}
@@ -296,7 +304,7 @@ Transform:
   - {fileID: 4663681042759666924}
   - {fileID: 7941960088636150126}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8604853216422598787
 GameObject:
@@ -309,12 +317,12 @@ GameObject:
   - component: {fileID: 1403850070614995683}
   - component: {fileID: 6809070644187992417}
   - component: {fileID: 13586962580867271}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat8-moulure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1403850070614995683
 Transform:

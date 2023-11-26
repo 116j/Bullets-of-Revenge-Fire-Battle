@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 3058225816139262010}
   - component: {fileID: 8834579808632886904}
   - component: {fileID: 6829504130391722753}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat5-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3058225816139262010
 Transform:
@@ -93,12 +93,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3004550140982820103}
   - component: {fileID: 1934334469440247894}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3004550140982820103
 Transform:
@@ -117,7 +117,7 @@ Transform:
   - {fileID: 8596271661674274858}
   - {fileID: 3123090221710728325}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1934334469440247894
 BoxCollider:
@@ -152,12 +152,12 @@ GameObject:
   - component: {fileID: 6570724808972788080}
   - component: {fileID: 8361841541041541570}
   - component: {fileID: 8033819327920538986}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat5-structure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &8596271661674274858
 Transform:
@@ -256,12 +256,12 @@ GameObject:
   - component: {fileID: 3123090221710728325}
   - component: {fileID: 5863783239103952635}
   - component: {fileID: 3303446885745640411}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat5-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3123090221710728325
 Transform:
@@ -340,12 +340,12 @@ GameObject:
   - component: {fileID: 9124989037562211180}
   - component: {fileID: 5781102992857557477}
   - component: {fileID: 3865458230653010951}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat5-rembarde.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &773856966859716482
 Transform:

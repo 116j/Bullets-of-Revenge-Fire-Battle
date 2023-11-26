@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 7884355344957835151}
   - component: {fileID: 557854633431084178}
   - component: {fileID: 4580968550172434747}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat1-structure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2245772520475202132
 Transform:
@@ -117,12 +117,12 @@ GameObject:
   - component: {fileID: 9039478379341223738}
   - component: {fileID: 7162286682141056897}
   - component: {fileID: 6063095575327114513}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat1-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &9039478379341223738
 Transform:
@@ -199,12 +199,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4974852340310330814}
   - component: {fileID: 4979499233524240190}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4974852340310330814
 Transform:
@@ -222,7 +222,7 @@ Transform:
   - {fileID: 2245772520475202132}
   - {fileID: 9039478379341223738}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4979499233524240190
 BoxCollider:
@@ -257,12 +257,12 @@ GameObject:
   - component: {fileID: 8724999286512473712}
   - component: {fileID: 242418285117845182}
   - component: {fileID: 5536202870294542126}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat1-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5990637966039531382
 Transform:

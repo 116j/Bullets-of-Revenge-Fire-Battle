@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -9,11 +8,29 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField]
     int amountToSpawn;
 
-    public void SpawnEnemies()
+    [Header("Enemy materials:")]
+    [SerializeField]
+    Material[] enemyMaterials;
+
+    readonly float m_spawnBreak = 3f;
+
+    public void SpawnEnemies(Vector3 location)
     {
         for (int i = 0; i < amountToSpawn; i++)
         {
-            Instantiate(enemyPerfab,transform);
+            StartCoroutine(nameof(CreateEnemy), location);
         }
+    }
+
+    IEnumerator CreateEnemy(Vector3 location)
+    {
+        GameObject enemy = Instantiate(enemyPerfab, location, enemyPerfab.transform.rotation);
+
+        int materialNum = Random.Range(0, 3);
+        for (int i = 0; i < 3; i++)
+        {
+            enemy.transform.GetChild(i).GetComponent<Renderer>().material = enemyMaterials[i * 3 + materialNum];
+        }
+        yield return new WaitForSeconds(m_spawnBreak);
     }
 }

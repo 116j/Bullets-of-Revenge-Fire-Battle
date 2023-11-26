@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 2376135294441883029}
   - component: {fileID: 8954281827800956498}
   - component: {fileID: 9068340236020644852}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat6-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5997840727217790387
 Transform:
@@ -116,12 +116,12 @@ GameObject:
   - component: {fileID: 4303456893782562407}
   - component: {fileID: 8302895381856891575}
   - component: {fileID: 8134398313181420772}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat6-structure-src.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4303456893782562407
 Transform:
@@ -199,12 +199,12 @@ GameObject:
   - component: {fileID: 6160686125665886892}
   - component: {fileID: 3758696562955981511}
   - component: {fileID: 5635668144568657888}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat6-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6160686125665886892
 Transform:
@@ -283,12 +283,12 @@ GameObject:
   - component: {fileID: 116225823365739701}
   - component: {fileID: 957871374027702943}
   - component: {fileID: 1188728188536279237}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat6-moulure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6191630312289258332
 Transform:
@@ -387,12 +387,12 @@ GameObject:
   m_Component:
   - component: {fileID: 2575918678256818712}
   - component: {fileID: 3403986112187659639}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2575918678256818712
 Transform:
@@ -403,7 +403,7 @@ Transform:
   m_GameObject: {fileID: 7327551371736936702}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3, y: 0, z: 31.13}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1.12}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5997840727217790387}
@@ -411,7 +411,7 @@ Transform:
   - {fileID: 4303456893782562407}
   - {fileID: 6160686125665886892}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3403986112187659639
 BoxCollider:

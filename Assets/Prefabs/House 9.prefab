@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 7474045100755196132}
   - component: {fileID: 7786142500963697600}
   - component: {fileID: 4724442224529106768}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat3-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7474045100755196132
 Transform:
@@ -95,12 +95,12 @@ GameObject:
   - component: {fileID: 6732850083411096010}
   - component: {fileID: 6069980762720316704}
   - component: {fileID: 3245457200842931055}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat3-rembarde.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2471407604526266847
 Transform:
@@ -200,12 +200,12 @@ GameObject:
   - component: {fileID: 8835838889296853196}
   - component: {fileID: 6926251213241817776}
   - component: {fileID: 737526230096916919}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat3-structure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5641509629860380145
 Transform:
@@ -304,12 +304,12 @@ GameObject:
   - component: {fileID: 8687663009141452193}
   - component: {fileID: 88346325078020403}
   - component: {fileID: 2263279771531553352}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: bat3-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &8687663009141452193
 Transform:
@@ -386,12 +386,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6608316249106246340}
   - component: {fileID: 2685642825007675092}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: House 9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6608316249106246340
 Transform:
@@ -410,7 +410,7 @@ Transform:
   - {fileID: 5641509629860380145}
   - {fileID: 8687663009141452193}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2685642825007675092
 BoxCollider:
