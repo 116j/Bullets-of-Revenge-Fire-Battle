@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 7872290057554341629}
   - component: {fileID: 5582779747027381063}
   - component: {fileID: 3127219988203028736}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat10-structure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2691158032812077413
 Transform:
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8245055598023965811, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 70886d50955be34408fe0bde07f01c46, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -116,12 +116,13 @@ GameObject:
   - component: {fileID: 6975603102439460183}
   - component: {fileID: 6203814532604331607}
   - component: {fileID: 1119790146782624704}
-  m_Layer: 6
+  - component: {fileID: 60794387505716994}
+  m_Layer: 3
   m_Name: bat10-fenetres.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &6975603102439460183
 Transform:
@@ -166,7 +167,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5697368352176866183, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 7f49609851f796c4683a161db2e7cf2c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -188,6 +189,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &60794387505716994
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2381785860064682847}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.48014927, y: 1.2934567, z: 0.17532916}
+  m_Center: {x: 0.065454006, y: -1.9575603, z: -4.721884}
 --- !u!1 &6150004882444894348
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,7 +221,7 @@ GameObject:
   - component: {fileID: 6009063540831852945}
   - component: {fileID: 6864164062055913220}
   - component: {fileID: 5490761784785643342}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat10-moulure.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,7 +271,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 3531430076153541391, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: f15903ea69056f04daed8c5e25c63a08, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -281,7 +303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7990965889433828845}
   - component: {fileID: 6491432978446302709}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: House 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -305,7 +327,7 @@ Transform:
   - {fileID: 2691158032812077413}
   - {fileID: 4162362037728948762}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6491432978446302709
 BoxCollider:
@@ -326,8 +348,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 7.1022577, y: 3.3785267, z: 7.234474}
-  m_Center: {x: 0.17200136, y: 0.2448054, z: -0.3074646}
+  m_Size: {x: 6.97176, y: 3.3785267, z: 7.234474}
+  m_Center: {x: 0.106752396, y: 0.24480534, z: -0.3074646}
 --- !u!1 &8254394765523438343
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,7 +361,7 @@ GameObject:
   - component: {fileID: 4162362037728948762}
   - component: {fileID: 7740095001775397111}
   - component: {fileID: 7540087641517954538}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat10-toiture.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -389,7 +411,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7365115106541871265, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: ca68d0b6464fb7141b681def5c1ed4f8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

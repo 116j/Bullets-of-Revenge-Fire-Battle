@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3058225816139262010}
   - component: {fileID: 8834579808632886904}
   - component: {fileID: 6829504130391722753}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat5-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -6610702381972239381, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 2700a2fc9bec04649b6625f185450ae8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3004550140982820103}
   - component: {fileID: 1934334469440247894}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: House 12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ Transform:
   - {fileID: 8596271661674274858}
   - {fileID: 3123090221710728325}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1934334469440247894
 BoxCollider:
@@ -138,8 +138,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.9604201, y: 9.887395, z: 7.7151184}
-  m_Center: {x: 0.10197449, y: 4.9265046, z: 0.24567413}
+  m_Size: {x: 3.7239413, y: 9.887395, z: 7.7151184}
+  m_Center: {x: 0.22021389, y: 4.9265046, z: 0.24567413}
 --- !u!1 &3441775212055436867
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,12 +152,12 @@ GameObject:
   - component: {fileID: 6570724808972788080}
   - component: {fileID: 8361841541041541570}
   - component: {fileID: 8033819327920538986}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat5-structure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &8596271661674274858
 Transform:
@@ -202,7 +202,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4450859734814440884, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 429b5f142b7604541b200c3995cc6b35, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -243,8 +243,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.5168011, y: 1.2935287, z: 0.17368479}
-  m_Center: {x: -0.007133007, y: 0.001422435, z: 0.07996006}
+  m_Size: {x: 0.5205377, y: 1.2935287, z: 0.17368479}
+  m_Center: {x: -0.0052647293, y: 0.0014224052, z: 0.07996006}
 --- !u!1 &4323792464563132758
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +256,7 @@ GameObject:
   - component: {fileID: 3123090221710728325}
   - component: {fileID: 5863783239103952635}
   - component: {fileID: 3303446885745640411}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat5-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,7 +306,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 8012107507671969875, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 0d4621bea964df648b4050d4df289fda, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -340,12 +340,12 @@ GameObject:
   - component: {fileID: 9124989037562211180}
   - component: {fileID: 5781102992857557477}
   - component: {fileID: 3865458230653010951}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat5-rembarde.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &773856966859716482
 Transform:
@@ -390,7 +390,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8695090680589675836, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 762e85bffd3adb8448ed1c7cafa5f86d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -431,5 +431,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.25753364, y: 1.2907175, z: 0.17342062}
-  m_Center: {x: -0.1038508, y: -1.3000094, z: -1.2783552}
+  m_Size: {x: 0.5879575, y: 1.2907175, z: 0.17342062}
+  m_Center: {x: 0.061361134, y: -1.3000094, z: -1.2783552}

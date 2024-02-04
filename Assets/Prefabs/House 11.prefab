@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 3841541928470775014}
   - component: {fileID: 5394485804712678416}
   - component: {fileID: 5994227315128232482}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat4-toiture.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2761758920910475305
 Transform:
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -2462624240474034553, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 3054fb36b58e8d242844cc83214167a3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -103,8 +103,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.2614994, y: 1.2872921, z: 0.15336451}
-  m_Center: {x: -3.130591, y: -2.448812, z: 0.2181795}
+  m_Size: {x: 0.66096973, y: 1.2872921, z: 0.15336451}
+  m_Center: {x: -2.9308558, y: -2.448812, z: 0.2181795}
 --- !u!1 &2726520233002504566
 GameObject:
   m_ObjectHideFlags: 0
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 7809856500026668165}
   - component: {fileID: 695728634631392283}
   - component: {fileID: 6599899469991425162}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat4-fenetres.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7133345115930627236, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: cd30a117450f5104688e758f7ba6e46f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5118362435619525390}
   - component: {fileID: 6698052355792597665}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: House 11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -221,7 +221,7 @@ Transform:
   - {fileID: 726076508302677321}
   - {fileID: 2761758920910475305}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &6698052355792597665
 BoxCollider:
@@ -256,12 +256,12 @@ GameObject:
   - component: {fileID: 300695058411439726}
   - component: {fileID: 6804640653426325380}
   - component: {fileID: 524366060774307695}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: bat4-structure.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &726076508302677321
 Transform:
@@ -306,7 +306,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4765079645908297864, guid: 5968af8e75f411849ae85535ae4ba803, type: 3}
+  - {fileID: 2100000, guid: 960c42ba28073bc4582853e0be48528d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

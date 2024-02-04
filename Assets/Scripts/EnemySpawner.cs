@@ -12,25 +12,31 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField]
     Material[] enemyMaterials;
 
-    readonly float m_spawnBreak = 3f;
+    readonly float m_spawnBreak = 1.5f;
 
     public void SpawnEnemies(Vector3 location)
     {
-        for (int i = 0; i < amountToSpawn; i++)
-        {
-            StartCoroutine(nameof(CreateEnemy), location);
-        }
+        StartCoroutine(nameof(CreateEnemies), location);
     }
 
-    IEnumerator CreateEnemy(Vector3 location)
+    IEnumerator CreateEnemies(Vector3 location)
     {
-        GameObject enemy = Instantiate(enemyPerfab, location, enemyPerfab.transform.rotation);
-
-        int materialNum = Random.Range(0, 3);
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < amountToSpawn; i++)
         {
-            enemy.transform.GetChild(i).GetComponent<Renderer>().material = enemyMaterials[i * 3 + materialNum];
+            GameObject enemy = Instantiate(enemyPerfab, location, enemyPerfab.transform.rotation);
+            enemy.name = enemyPerfab.name + i;
+
+            int materialNum = Random.Range(0, 3);
+            for (int j = 0; j < 4; j++)
+            {
+                if(!enemy.transform.GetChild(j).TryGetComponent<Renderer>(out var render))
+                {
+                    render = enemy.transform.GetChild(j).GetComponentInChildren<Renderer>();
+                }
+
+                render.material = enemyMaterials[j * 3 + materialNum];
+            }
+            yield return new WaitForSeconds(m_spawnBreak);
         }
-        yield return new WaitForSeconds(m_spawnBreak);
     }
 }

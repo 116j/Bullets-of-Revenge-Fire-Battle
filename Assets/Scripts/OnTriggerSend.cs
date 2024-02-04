@@ -14,7 +14,7 @@ public class OnTriggerSend : MonoBehaviour
         if (!m_commandSend && other.gameObject.CompareTag("Player"))
         {
             m_commandSend = true;
-            receiver.Receive(spawnLocation.localPosition);
+            receiver.Receive(spawnLocation.position);
         }
     }
 }

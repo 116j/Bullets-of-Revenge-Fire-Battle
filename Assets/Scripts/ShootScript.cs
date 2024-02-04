@@ -13,12 +13,14 @@ public class ShootScript : MonoBehaviour
     [SerializeField]
     Transform casingExitLocation;
 
+    public Transform BarrelLocation => barrelLocation;
+
     //"Specify time to destory the casing object
     readonly float m_destroyTimer = 4f;
     //Bullet Speed
-    readonly float m_shotPower = 500f;
+    readonly float m_shotPower = 800f;
     readonly float m_ejectPower = 150f;
-    Vector3 m_shootDirection;
+    Vector3 m_target;
 
     private Animator m_gunAnimator;
     private AudioSource m_shootSound;
@@ -30,18 +32,11 @@ public class ShootScript : MonoBehaviour
         m_shootSound = GetComponent<AudioSource>();
     }
 
-    public void Fire(Vector3 firePos)
+    public void Fire(Vector3 target)
     {
         m_gunAnimator.SetTrigger("Fire");
         m_shootSound.Play();
-        if (firePos != Vector3.zero)
-        {
-            m_shootDirection = firePos - barrelLocation.position;
-        }
-        else
-        {
-            m_shootDirection = barrelLocation.forward;
-        }
+        m_target = target;    
     }
 
 
@@ -49,7 +44,7 @@ public class ShootScript : MonoBehaviour
     public void Shoot()
     {
         muzzleFlashParticles.Play();
-        Instantiate(bulletPrefab, barrelLocation.position, barrelLocation.rotation).GetComponent<Rigidbody>().AddForce(m_shootDirection * m_shotPower);
+        Instantiate(bulletPrefab, barrelLocation.position, barrelLocation.rotation).GetComponent<Rigidbody>().AddForce((barrelLocation.forward) * m_shotPower);
     }
 
     //This function creates a casing at the ejection slot

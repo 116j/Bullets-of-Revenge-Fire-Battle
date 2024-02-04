@@ -5,17 +5,18 @@ TagManager:
   serializedVersion: 2
   tags:
   - bullet
+  - attack
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Bullet
+  - Enviroment
   - Water
   - UI
-  - Enviroment
   - Cover
   - Enemy
   - Player
+  - Bullet
   - Spot
   - 
   - 
