@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Animations.Rigging;
 
 public class EnemyAIController : MonoBehaviour
 {
@@ -13,7 +10,9 @@ public class EnemyAIController : MonoBehaviour
     Transform center;
     [SerializeField]
     //aimRig's aim
-    Transform aim;
+    Transform TargetL;
+    [SerializeField]
+    Transform TargetR;
     [SerializeField]
     //top of the rifle
     Transform barrelLocation;
@@ -31,9 +30,6 @@ public class EnemyAIController : MonoBehaviour
     Animator m_anim;
     CapsuleCollider m_col;
     ParticleSystem m_bullet;
-    Rig m_armsRig;
-    Rig m_aimRig;
-    Transform m_riflePos;
 
     Action m_currentAction;
     GameObject m_currentCover;
@@ -59,10 +55,10 @@ public class EnemyAIController : MonoBehaviour
     Vector3 m_findCoverForward;
     //shoot direction
     Vector3 m_targetPoint;
-    float m_armsRigWeight = 1f;
-    float m_aimRigWeight = 0f;
-    float m_riflePitch;
-    float m_rifleYaw;
+    float m_LPitch;
+    float m_LYaw;
+    float m_RPitch;
+    float m_RYaw;
 
     readonly float m_walkSpeed = 4f;
     readonly float m_runSpeed = 7;
@@ -80,21 +76,18 @@ public class EnemyAIController : MonoBehaviour
     readonly int m_rifleCapacity = 30;
     readonly float m_detectRadius = 0.6f;
     readonly float m_hideOffset = 0.35f;
+    readonly float m_riffleRotationStep = 0.5f;
 
-    Vector3 m_baseAim;
-    Vector3 m_baseRiflePos;
-    Quaternion m_baseRifleRot;
+    Quaternion m_baseTL;
+    Quaternion m_baseTR;
+    float m_rifleRotation;
 
     // Start is called before the first frame update
     void Start()
     {
         Transform aimRig = transform.Find("AimRig");
-        m_armsRig = transform.Find("ArmsRig").GetComponent<Rig>();
-        m_aimRig = aimRig.GetComponent<Rig>();
-        m_riflePos = aimRig.GetChild(0);
-        m_baseAim = transform.Find("Aim").localPosition;
-        m_baseRiflePos = m_riflePos.localPosition;
-        m_baseRifleRot = m_riflePos.localRotation;
+        m_baseTL = TargetL.transform.localRotation;
+        m_baseTR = TargetR.transform.localRotation;
 
         m_target = GameObject.FindWithTag("Player").transform;
         m_agent = GetComponent<NavMeshAgent>();
@@ -105,7 +98,7 @@ public class EnemyAIController : MonoBehaviour
         m_bullet = GetComponentInChildren<ParticleSystem>();
         m_magazineStore = m_rifleCapacity;
         m_currentAction = Pursue;
-        // m_dead = true;
+       // m_dead = true;
         ResetAim();
     }
 
@@ -113,8 +106,6 @@ public class EnemyAIController : MonoBehaviour
     void Update()
     {
         Debug.Log(gameObject.name + " " + m_currentAction.Method.Name);
-        m_armsRig.weight = Mathf.Lerp(m_armsRig.weight, m_armsRigWeight, Time.deltaTime * m_turnSpeed);
-        m_aimRig.weight = Mathf.Lerp(m_aimRig.weight, m_aimRigWeight, Time.deltaTime * m_turnSpeed);
 
         if (!m_dead)
         {
@@ -173,11 +164,13 @@ public class EnemyAIController : MonoBehaviour
     /// </summary>
     void ResetAim()
     {
-        m_aimRigWeight = 0f;
-        aim.localPosition = m_baseAim;
-        m_riflePitch = m_baseAim.y;
-        m_rifleYaw = m_baseAim.x;
-        m_riflePos.SetLocalPositionAndRotation(m_baseRiflePos, m_baseRifleRot);
+        TargetL.localRotation = m_baseTL;
+        TargetR.localRotation = m_baseTR;
+        m_RPitch = m_baseTR.eulerAngles.y;
+        m_RYaw = m_baseTR.eulerAngles.z;
+        m_LPitch = m_baseTL.eulerAngles.y;
+        m_LYaw = m_baseTL.eulerAngles.z;
+
         m_anim.SetBool(m_HashAiming, false);
     }
     /// <summary>
@@ -220,7 +213,7 @@ public class EnemyAIController : MonoBehaviour
                 if (rayhit.collider.gameObject != m_currentCover
                     && distZ < m_shootDist
                     && distZ > m_safeDist)
-                   // && distZ > Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z))
+                // && distZ > Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z))
                 {
                     m_currentCover = rayhit.collider.gameObject;
                     if (Vector3.Distance(transform.position, m_currentCover.transform.position) > 5f)
@@ -254,7 +247,7 @@ public class EnemyAIController : MonoBehaviour
             }
         }
         //rotates cover detection vector
-        m_findCoverForward = Quaternion.Euler(0f, dir ? 1 : -1 * m_turnSpeed / 2,0f) * m_findCoverForward;
+        m_findCoverForward = Quaternion.Euler(0f, dir ? 1 : -1 * m_turnSpeed / 2, 0f) * m_findCoverForward;
     }
 
     /// <summary>
@@ -263,7 +256,7 @@ public class EnemyAIController : MonoBehaviour
     /// <returns></returns>
     bool DetectPlayerShoot()
     {
-        RaycastHit[] objsInArea = Physics.SphereCastAll(transform.position + (Vector3.up * 1.5f), 1.5f, transform.forward, 0.001f, 1 << LayerMask.NameToLayer("Bullet"));
+        RaycastHit[] objsInArea = Physics.SphereCastAll(transform.position + Vector3.up * m_detectRadius, m_detectRadius, transform.forward, 0.001f, 1 << LayerMask.NameToLayer("Bullet"));
         return objsInArea.Length > 0;
     }
     /// <summary>
@@ -421,17 +414,17 @@ public class EnemyAIController : MonoBehaviour
 
         m_agent.SetDestination(m_spotCol.transform.position);
 
-        if (!m_agent.pathPending&& m_agent.remainingDistance <= m_agent.stoppingDistance
-            || Vector3.Distance(new Vector3(transform.position.x, 0f, transform.position.z), 
+        if (!m_agent.pathPending && m_agent.remainingDistance <= m_agent.stoppingDistance
+            || Vector3.Distance(new Vector3(transform.position.x, 0f, transform.position.z),
             new Vector3(m_spotCol.transform.position.x, 0f, m_spotCol.transform.position.z)) < 0.1f)
         {
-                if (!m_agent.hasPath || m_agent.velocity.sqrMagnitude < 0.01f)
-                {
-                    m_agent.ResetPath();
-                    m_agent.speed = m_walkSpeed;
-                    EnableObstacle(true);
-                    m_currentAction = Attack;
-                }          
+            if (!m_agent.hasPath || m_agent.velocity.sqrMagnitude < 0.01f)
+            {
+                m_agent.ResetPath();
+                m_agent.speed = m_walkSpeed;
+                EnableObstacle(true);
+                m_currentAction = Attack;
+            }
         }
     }
     /// <summary>
@@ -442,14 +435,8 @@ public class EnemyAIController : MonoBehaviour
         //reloads the rifle
         if (m_magazineStore <= 0)
         {
-            m_armsRigWeight = 0f;
-            m_aimRigWeight = 0f;
-            if (Mathf.Approximately(m_armsRig.weight, 0f) && Mathf.Approximately(m_aimRig.weight, 0f))
-            {
-                m_magazineStore = m_rifleCapacity;
-                m_anim.SetTrigger(m_HashReload);
-            }
-            return;
+            m_magazineStore = m_rifleCapacity;
+            m_anim.SetTrigger(m_HashReload);
         }
         //if player is near - find new cover
         if (m_currentAction == Attack && Vector3.Dot(new Vector3(0f, 0f, m_currentCover.transform.position.z - m_spotCol.transform.position.z), m_target.position - m_spotCol.transform.position) < 0.2f)
@@ -484,8 +471,6 @@ public class EnemyAIController : MonoBehaviour
             }
             if (!m_anim.IsInTransition(1) && m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name == "Rifle_Aiming_Idle" && Vector3.Angle(barrelLocation.forward, (m_target.position - barrelLocation.position).normalized) < 15f)
             {
-                m_aimRigWeight = 1f;
-                m_armsRigWeight = 1f;
                 //direction from the rifle's top to the player 
                 Vector3 aimDir = m_target.transform.position + Vector3.up * 1.5f - barrelLocation.position - barrelLocation.forward * (m_target.transform.position + Vector3.up * 1.5f - barrelLocation.position).magnitude;
 
@@ -494,21 +479,26 @@ public class EnemyAIController : MonoBehaviour
                     aimDir = hit.point - barrelLocation.position - barrelLocation.forward * (hit.point - barrelLocation.position).magnitude;
                 }
                 // slowly moves aim towards the player
-                if (Mathf.Abs(aimDir.x) > 0.015f)
+                if (Mathf.Abs(aimDir.x) > 0.02f)
                 {
-                    m_rifleYaw += (Mathf.Abs(aimDir.x) <= 0.1f ? aimDir.x : (0.1f * Mathf.Sign(aimDir.x))) * Time.deltaTime * Mathf.Sign(m_target.position.z - transform.position.z);
+                    m_rifleRotation = (Mathf.Abs(aimDir.x) <= m_riffleRotationStep ? aimDir.x : (m_riffleRotationStep * Mathf.Sign(aimDir.x))) * Time.deltaTime * Mathf.Sign(m_target.position.z - transform.position.z) * m_turnSpeed;
+                    m_RYaw += m_rifleRotation;
+                    m_LYaw += m_rifleRotation;
                 }
-                if (Mathf.Abs(aimDir.y) > 0.015f)
+                if (Mathf.Abs(aimDir.y) > 0.02f)
                 {
-                    m_riflePitch += (Mathf.Abs(aimDir.y) <= 0.1f ? aimDir.y : (0.1f * Mathf.Sign(aimDir.y))) * Time.deltaTime;
+                    m_rifleRotation = (Mathf.Abs(aimDir.y) <= m_riffleRotationStep ? aimDir.y : (m_riffleRotationStep * Mathf.Sign(aimDir.y))) * Time.deltaTime * m_turnSpeed;
+                    m_LPitch += m_rifleRotation;
+                    m_RPitch += m_rifleRotation;
                 }
-                aim.localPosition = Vector3.Slerp(aim.localPosition, new Vector3(m_rifleYaw, m_riflePitch, aim.localPosition.z), Time.deltaTime * m_turnSpeed);
+                TargetR.localRotation = Quaternion.Slerp(TargetR.localRotation, Quaternion.Euler(TargetR.localRotation.eulerAngles.x, m_RPitch, m_RYaw), Time.deltaTime * m_turnSpeed);
+                TargetL.localRotation = Quaternion.Slerp(TargetL.localRotation, Quaternion.Euler(TargetL.localRotation.eulerAngles.x, m_LPitch, m_LYaw), Time.deltaTime * m_turnSpeed);
                 //if the rifle is pointinfg at the player - sets shoot target with a deviation
                 if (Physics.SphereCast(barrelLocation.position, m_detectRadius, barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                 {
                     if (Physics.Raycast(barrelLocation.position, barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                     {
-                        m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius);
+                        m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-(m_detectRadius - 0.1f), m_detectRadius - 0.1f) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius);
                     }
                     else
                     {
@@ -518,15 +508,11 @@ public class EnemyAIController : MonoBehaviour
                     m_anim.SetTrigger(m_HashShooting);
                 }
             }
-            else
-            {
-                m_aimRigWeight = 0f;
-            }
+
         }
         else
         {
             m_anim.SetBool(m_HashAiming, false);
-            m_aimRigWeight = 0f;
         }
     }
     /// <summary>
@@ -558,7 +544,6 @@ public class EnemyAIController : MonoBehaviour
     /// </summary>
     void Hit()
     {
-        m_armsRigWeight = 0f;
         m_anim.SetTrigger(m_HashHit);
         m_health -= m_hit;
         if (m_health <= 0)
@@ -577,8 +562,6 @@ public class EnemyAIController : MonoBehaviour
     void Die()
     {
         m_dead = true;
-        ResetAim();
-        m_armsRigWeight = 0f;
         EnableObstacle(true);
         gameObject.layer = LayerMask.NameToLayer("Enviroment");
         m_obstacle.center = Vector3.up * 0.5f;
@@ -594,6 +577,7 @@ public class EnemyAIController : MonoBehaviour
 
     public void Shoot()
     {
+        Debug.Log(gameObject.name + " Shooting...");
         m_magazineStore--;
         m_bullet.transform.LookAt(m_targetPoint);
         m_bullet.Play();

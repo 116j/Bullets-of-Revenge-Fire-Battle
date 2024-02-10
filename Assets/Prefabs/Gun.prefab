@@ -378,9 +378,9 @@ GameObject:
   - component: {fileID: 6347870445338297699}
   - component: {fileID: 3674675124793001547}
   - component: {fileID: 9125540473735586616}
-  - component: {fileID: 2320849970439616790}
-  - component: {fileID: 7458042842168954900}
-  - component: {fileID: 4909668574727194958}
+  - component: {fileID: 5360219934801389075}
+  - component: {fileID: 1495504407454157185}
+  - component: {fileID: 1655271537288226051}
   m_Layer: 0
   m_Name: M1911 Handgun_Model
   m_TagString: Untagged
@@ -457,7 +457,24 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!95 &2320849970439616790
+--- !u!114 &5360219934801389075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3369567109393067079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be84e4d7829855419c06b94e56bd135, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 1927891877241037563, guid: 6541d92f6d01a4a4981ea407e8b7fa06, type: 3}
+  casingPrefab: {fileID: 6067684786448343817, guid: a1ac410de0feb4542bee9a6ef1dfb3b0, type: 3}
+  muzzleFlashParticles: {fileID: 198719912503724044, guid: 3dd9cf2e209c504448f1c4c6835675cf, type: 3}
+  barrelLocation: {fileID: 3232340194673806601}
+  casingExitLocation: {fileID: 4237697129596439398}
+--- !u!95 &1495504407454157185
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -478,24 +495,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7458042842168954900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3369567109393067079}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6be84e4d7829855419c06b94e56bd135, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 1927891877241037563, guid: 6541d92f6d01a4a4981ea407e8b7fa06, type: 3}
-  casingPrefab: {fileID: 6067684786448343817, guid: a1ac410de0feb4542bee9a6ef1dfb3b0, type: 3}
-  muzzleFlashParticles: {fileID: 198719912503724044, guid: 3dd9cf2e209c504448f1c4c6835675cf, type: 3}
-  barrelLocation: {fileID: 3232340194673806601}
-  casingExitLocation: {fileID: 4237697129596439398}
---- !u!82 &4909668574727194958
+--- !u!82 &1655271537288226051
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
