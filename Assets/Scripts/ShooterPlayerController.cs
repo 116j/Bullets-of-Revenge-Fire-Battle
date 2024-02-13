@@ -1,5 +1,4 @@
 using Cinemachine;
-using Cinemachine.PostFX;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Rendering;
@@ -11,7 +10,7 @@ public class ShooterPlayerController : MonoBehaviour
     [Header("Objects and transforms")]
 
     [SerializeField]
-    Transform TargetL;  
+    Transform TargetL;
     [SerializeField]
     Transform TargetR;
     [SerializeField]
@@ -47,7 +46,6 @@ public class ShooterPlayerController : MonoBehaviour
 
     //hashes for animator parameters
     readonly int m_HashCrouching = Animator.StringToHash("Crouching");
-    readonly int m_HashShooting = Animator.StringToHash("Shooting");
     readonly int m_HashAiming = Animator.StringToHash("Aiming");
     readonly int m_HashDie = Animator.StringToHash("Die");
     readonly int m_HashHit = Animator.StringToHash("Hit");
@@ -79,7 +77,7 @@ public class ShooterPlayerController : MonoBehaviour
     readonly float m_crouchOffset = 0.35f;
     readonly float m_gunRotationStep = 0.5f;
     //time to recover from a hit
-    readonly float m_recoverTime = 3f;
+    readonly float m_recoverTime = 2f;
     readonly float m_vignetteMax = 0.64f;
     readonly float m_vignetteMin = 0.46f;
 
@@ -92,7 +90,7 @@ public class ShooterPlayerController : MonoBehaviour
     // vertical movement of camera
     float m_LPitch;
     //horizontal movement of camera
-    float m_LYaw;   
+    float m_LYaw;
     // vertical movement of camera
     float m_RPitch;
     //horizontal movement of camera
@@ -110,7 +108,6 @@ public class ShooterPlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Transform aimRig = transform.Find("AimRig");
         m_baseTL = TargetL.localRotation;
         m_baseTR = TargetR.localRotation;
         m_anim = GetComponent<Animator>();
@@ -135,7 +132,7 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (m_input.Fire)
             {
-                m_anim.SetTrigger(m_HashShooting);
+                Fire();
                 m_input.SetFireDone();
             }
 
@@ -162,7 +159,7 @@ public class ShooterPlayerController : MonoBehaviour
 
                 if (m_health < healthBar.maxValue / 2)
                 {
-                    if (Mathf.Approximately(m_damageVignette.intensity.value, m_vignetteMin)|| m_damageVignette.intensity.value< m_vignetteMin)
+                    if (Mathf.Approximately(m_damageVignette.intensity.value, m_vignetteMin) || m_damageVignette.intensity.value < m_vignetteMin)
                     {
                         m_damageVignette.intensity.value = Mathf.Lerp(m_damageVignette.intensity.value, m_vignetteMax, Time.deltaTime);
                     }
@@ -200,13 +197,13 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (Mathf.Abs(aimDir.x) > 0.02f)
             {
-                m_gunRotation = (Mathf.Abs(aimDir.x) <= m_gunRotationStep ? aimDir.x : (m_gunRotationStep * Mathf.Sign(aimDir.x))) * Time.deltaTime * Mathf.Sign(m_aimTarget.z - transform.position.z) * m_cameraRotationSpeed;
+                m_gunRotation = Mathf.Abs(aimDir.x) <= m_gunRotationStep ? aimDir.x : (m_gunRotationStep * Mathf.Sign(aimDir.x) * Time.deltaTime * Mathf.Sign(m_aimTarget.z - transform.position.z) * m_cameraRotationSpeed);
                 m_LYaw += m_gunRotation;
                 m_RYaw += m_gunRotation;
             }
             if (Mathf.Abs(aimDir.y) > 0.02f)
             {
-                m_gunRotation  = (Mathf.Abs(aimDir.y) <= m_gunRotationStep ? aimDir.y : (m_gunRotationStep * Mathf.Sign(aimDir.y))) * Time.deltaTime * m_cameraRotationSpeed;
+                m_gunRotation = Mathf.Abs(aimDir.y) <= m_gunRotationStep ? aimDir.y : (m_gunRotationStep * Mathf.Sign(aimDir.y) * Time.deltaTime * m_cameraRotationSpeed);
                 m_LPitch += m_gunRotation;
                 m_RPitch += m_gunRotation;
             }
@@ -248,10 +245,10 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (m_isCrouched != m_input.Crouch)
         {
-            if (m_input.Crouch && Physics.Raycast(transform.position, transform.forward, 2f, 1 << LayerMask.NameToLayer("Cover")) || !m_input.Crouch)
+            if (m_input.Crouch && Physics.Raycast(transform.position, transform.forward, 2f, LayerMask.GetMask("Cover")) || !m_input.Crouch)
             {
                 m_isCrouched = m_input.Crouch;
-               if(!m_isAiming)
+                if (!m_isAiming)
                     SetCameraCrouchOffset(m_isCrouched);
             }
             else if (m_input.Crouch)
@@ -261,7 +258,7 @@ public class ShooterPlayerController : MonoBehaviour
         }
         else if (m_isCrouched &&
             (m_input.Move.y < -0.5f ||
-           !Physics.Raycast(m_col.bounds.center, transform.forward, 3f, 1 << LayerMask.NameToLayer("Cover"))) )
+           !Physics.Raycast(m_col.bounds.center, transform.forward, 3f, LayerMask.GetMask("Cover"))))
         //   || (!Physics.Raycast(new(m_col.bounds.max.x, m_col.bounds.center.y, m_col.bounds.center.z), transform.forward, 4f, 1 << LayerMask.NameToLayer("Cover")) &&
         //    !Physics.Raycast(new(m_col.bounds.min.x, m_col.bounds.center.y, m_col.bounds.center.z), transform.forward, 4f, 1 << LayerMask.NameToLayer("Cover")))))
         {
@@ -301,7 +298,7 @@ public class ShooterPlayerController : MonoBehaviour
         }
 
         move.y = 0f;
-       // transform.position += move * m_anim.deltaPosition.magnitude;
+        // transform.position += move * m_anim.deltaPosition.magnitude;
         m_rb.MovePosition(m_rb.position + move * m_anim.deltaPosition.magnitude);
         //m_rb.MoveRotation(m_anim.deltaRotation);
     }
@@ -315,9 +312,9 @@ public class ShooterPlayerController : MonoBehaviour
     {
         m_aimTarget = Camera.main.transform.position + Camera.main.transform.forward * m_aimDistance;
 
-        if (Physics.SphereCast(Camera.main.transform.position, 0.5f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, 1 << LayerMask.NameToLayer("Enemy")))
+        if (Physics.SphereCast(Camera.main.transform.position, 0.5f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
         {
-            if (Physics.SphereCast(gun.BarrelLocation.position, 0.2f, hitInfo.point - gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, 1 << LayerMask.NameToLayer("Enemy")))
+            if (Physics.SphereCast(gun.BarrelLocation.position, 0.2f, hitInfo.point - gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
                 var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
                 if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 8f)
@@ -345,29 +342,40 @@ public class ShooterPlayerController : MonoBehaviour
             }
             if (isAiming)
             {
-                TargetL.localRotation = m_baseTL;
-                TargetR.localRotation = m_baseTR;
-                m_RPitch = m_baseTR.eulerAngles.x;
-                m_RYaw = m_baseTR.eulerAngles.z;
-                m_LPitch = m_baseTL.eulerAngles.x;
-                m_LYaw = m_baseTL.eulerAngles.z;
-
-                m_cameraPitch = 0f;
+                ResetAim();
                 aimCamera.Priority = 11;
             }
             else
             {
+                ResetAim();
                 aimCamera.Priority = 9;
             }
             m_isAiming = isAiming;
         }
+    }
+
+    void ResetAim()
+    {
+        TargetL.localRotation = m_baseTL;
+        TargetR.localRotation = m_baseTR;
+        m_RPitch = m_baseTR.eulerAngles.x;
+        m_RYaw = m_baseTR.eulerAngles.z;
+        m_LPitch = m_baseTL.eulerAngles.x;
+        m_LYaw = m_baseTL.eulerAngles.z;
     }
     /// <summary>
     /// Start shooting
     /// </summary>
     void Fire()
     {
-        gun.Fire(m_aimTarget);
+        if(m_isAiming)
+        {
+            gun.Fire(m_aimTarget);
+        }
+        else
+        {
+            gun.Fire(gun.BarrelLocation.position+ gun.BarrelLocation.forward);
+        }
     }
     /// <summary>
     /// Takes the damage from enemy's bullet
@@ -377,7 +385,9 @@ public class ShooterPlayerController : MonoBehaviour
         AddHealth(-m_hit);
         if (m_health <= 0)
         {
+            Aim(false);
             m_dead = true;
+            m_input.LockInput();
             m_anim.SetTrigger(m_HashDie);
         }
         else
@@ -400,13 +410,17 @@ public class ShooterPlayerController : MonoBehaviour
     //Detects bullets
     private void OnParticleCollision(GameObject other)
     {
-        Hit();
-        Debug.Log("PLAYER HIT");
+        if (!m_dead)
+        {
+            Hit();
+            Debug.Log("PLAYER HIT");
+        }
     }
 
     private void OnDisable()
     {
-        aimImage.transform.parent.gameObject?.SetActive(false);
+        m_damageVignette.intensity.value = 0f;
+        //aimImage?.transform?.parent?.gameObject?.SetActive(false);
         gun.transform.parent.gameObject.SetActive(false);
         GetComponent<RigBuilder>().enabled = false;
     }
@@ -415,7 +429,7 @@ public class ShooterPlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(gun.BarrelLocation.position, m_aimTarget);
-        Gizmos.color=Color.magenta;
-        Gizmos.DrawLine(gun.BarrelLocation.position, gun.BarrelLocation.position+gun.BarrelLocation.forward*m_aimDistance);
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(gun.BarrelLocation.position, gun.BarrelLocation.position + gun.BarrelLocation.forward * m_aimDistance);
     }
 }

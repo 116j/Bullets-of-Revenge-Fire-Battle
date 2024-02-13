@@ -36,7 +36,7 @@
                     "name": "Run",
                     "type": "PassThrough",
                     "id": "8fb15a2d-1e30-469f-95f0-15d455ef7b33",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -240,8 +240,8 @@
                 {
                     "name": "",
                     "id": "1d4ca06e-8e98-4a95-971d-f1228b4e6f1a",
-                    "path": "<Gamepad>/leftStickPress",
-                    "interactions": "Press",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Run",
@@ -845,16 +845,16 @@
                     "name": "UpperBlock",
                     "type": "PassThrough",
                     "id": "cd6c0992-dd4b-4735-8d35-566b8d5091b1",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "MiddleBlock",
                     "type": "PassThrough",
                     "id": "6e8aaf92-7d6b-4d03-9558-f817e77d7746",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -863,7 +863,7 @@
                     "name": "LowerBlock",
                     "type": "PassThrough",
                     "id": "d1e32709-1c0e-4002-b915-05703d7ec776",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
