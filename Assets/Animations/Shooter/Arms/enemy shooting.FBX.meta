@@ -442,6 +442,13 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
+      - time: 0.5681234
+        functionName: PlayShotSound
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: f347be89bd7693640b309c0ed1eebe3f, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask:
       - path: 
         weight: 1

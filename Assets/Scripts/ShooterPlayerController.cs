@@ -10,31 +10,40 @@ public class ShooterPlayerController : MonoBehaviour
     [Header("Objects and transforms")]
 
     [SerializeField]
-    Transform TargetL;
+    Transform m_startPosition;
     [SerializeField]
-    Transform TargetR;
+    Transform m_TargetL;
     [SerializeField]
-    ShootScript gun;
+    Transform m_TargetR;
     [SerializeField]
-    CinemachineVirtualCamera aimCamera;
+    ShootScript m_gun;
+    [SerializeField]
+    CinemachineVirtualCamera m_aimCamera;
     //transform to rotate moveCamera
     [SerializeField]
-    Transform moveCameraTarget;
+    Transform m_moveCameraTarget;
     [SerializeField]
     //transform to rotate aimCamera
-    Transform aimCameraTarget;
+    Transform m_aimCameraTarget;
     [SerializeField]
-    GameObject aimImage;
+    GameObject m_aimImage;
     [SerializeField]
-    Slider healthBar;
+    Slider m_healthBar;
     [SerializeField]
-    VolumeProfile damageVolume;
+    VolumeProfile m_damageVolume;
+    [SerializeField]
+    AudioClip m_crouchStep;
+    [SerializeField]
+    AudioClip[] m_stepSounds;
+    [SerializeField]
+    AudioClip[] m_hitSounds;
 
     PlayerInput m_input;
     Animator m_anim;
     Rigidbody m_rb;
     CapsuleCollider m_col;
     Vignette m_damageVignette;
+    AudioSource m_audio;
 
     bool m_dead = false;
     //if player is in aiming mode
@@ -59,8 +68,6 @@ public class ShooterPlayerController : MonoBehaviour
     readonly float m_playerWalkSpeed = 2.5f;
     //a speed for the player speed change
     readonly float m_speedChange = 10f;
-    //a point for hit
-    readonly float m_hit = 0.8f;
     //a speed for the camera turn change
     readonly float m_cameraTurn = 7f;
     //a speed of the camera rotation
@@ -76,8 +83,6 @@ public class ShooterPlayerController : MonoBehaviour
     //height of the camera offset when the player crouches
     readonly float m_crouchOffset = 0.35f;
     readonly float m_gunRotationStep = 0.5f;
-    //time to recover from a hit
-    readonly float m_recoverTime = 2f;
     readonly float m_vignetteMax = 0.64f;
     readonly float m_vignetteMin = 0.46f;
 
@@ -105,20 +110,26 @@ public class ShooterPlayerController : MonoBehaviour
     Vector3 m_aimTarget;
     float m_gunRotation;
 
+    //a point for hit
+    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 1f;
+    //time to recover from a hit
+    float RecoverTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 3.5f;
+
     // Start is called before the first frame update
     void Start()
     {
-        m_baseTL = TargetL.localRotation;
-        m_baseTR = TargetR.localRotation;
+        m_baseTL = m_TargetL.localRotation;
+        m_baseTR = m_TargetR.localRotation;
         m_anim = GetComponent<Animator>();
         m_input = GetComponent<PlayerInput>();
         m_rb = GetComponent<Rigidbody>();
         m_col = GetComponent<CapsuleCollider>();
-        m_damageVignette = (Vignette)damageVolume.components[0];
+        m_damageVignette = (Vignette)m_damageVolume.components[0];
+        m_audio = GetComponent<AudioSource>();
 
-        healthBar.gameObject.SetActive(true);
-        healthBar.maxValue = m_health;
-        healthBar.value = m_health;
+        m_healthBar.gameObject.SetActive(true);
+        m_healthBar.maxValue = m_health;
+        m_healthBar.value = m_health;
     }
 
     /// <summary>
@@ -126,6 +137,7 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+        m_anim.SetBool(m_HashDie, m_dead);
         if (!m_dead)
         {
             Aim(m_input.Aim);
@@ -148,16 +160,16 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (!m_dead)
         {
-            if (m_health < healthBar.maxValue)
+            if (m_health < m_healthBar.maxValue)
             {
                 m_recoverWaitTime += Time.deltaTime;
-                if (m_recoverWaitTime >= m_recoverTime)
+                if (m_recoverWaitTime >= RecoverTime)
                 {
                     m_recoverWaitTime = 0;
-                    AddHealth(m_hit);
+                    AddHealth(HitPoint);
                 }
 
-                if (m_health < healthBar.maxValue / 2)
+                if (m_health < m_healthBar.maxValue / 2)
                 {
                     if (Mathf.Approximately(m_damageVignette.intensity.value, m_vignetteMin) || m_damageVignette.intensity.value < m_vignetteMin)
                     {
@@ -188,12 +200,12 @@ public class ShooterPlayerController : MonoBehaviour
         m_cameraPitch = Mathf.Clamp(m_cameraPitch, m_lowerCameraBorder, m_upperCameraBorder);
         //smoothly rotate transform
         m_cameraChange = Vector3.Slerp(m_cameraChange, new Vector3(m_cameraPitch, m_cameraYaw, 0f), Time.deltaTime * m_cameraTurn);
-        moveCameraTarget.rotation = Quaternion.Euler(m_cameraChange);
-        aimCameraTarget.rotation = Quaternion.Euler(m_cameraChange + Vector3.up * m_aimPitchOffset);
+        m_moveCameraTarget.rotation = Quaternion.Euler(m_cameraChange);
+        m_aimCameraTarget.rotation = Quaternion.Euler(m_cameraChange + Vector3.up * m_aimPitchOffset);
 
         if (m_isAiming)
         {
-            Vector3 aimDir = gun.BarrelLocation.position + gun.BarrelLocation.forward * (m_aimTarget - gun.BarrelLocation.position).magnitude - m_aimTarget;
+            Vector3 aimDir = m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * (m_aimTarget - m_gun.BarrelLocation.position).magnitude - m_aimTarget;
 
             if (Mathf.Abs(aimDir.x) > 0.02f)
             {
@@ -207,8 +219,8 @@ public class ShooterPlayerController : MonoBehaviour
                 m_LPitch += m_gunRotation;
                 m_RPitch += m_gunRotation;
             }
-            TargetR.localRotation = Quaternion.Slerp(TargetR.localRotation, Quaternion.Euler(m_RPitch, TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_cameraRotationSpeed);
-            TargetL.localRotation = Quaternion.Slerp(TargetL.localRotation, Quaternion.Euler(m_LPitch, TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_cameraRotationSpeed);
+            m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_RPitch, m_TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_cameraRotationSpeed);
+            m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_LPitch, m_TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_cameraRotationSpeed);
         }
     }
     /// <summary>
@@ -229,14 +241,14 @@ public class ShooterPlayerController : MonoBehaviour
         {
             if (!m_isCrouched)
             {
-                transform.forward = Vector3.Slerp(transform.forward, new Vector3(moveCameraTarget.forward.x, 0f, moveCameraTarget.forward.z), Time.fixedDeltaTime * m_cameraTurn);
+                transform.forward = Vector3.Slerp(transform.forward, new Vector3(m_moveCameraTarget.forward.x, 0f, m_moveCameraTarget.forward.z), Time.fixedDeltaTime * m_cameraTurn);
             }
             Aim();
         }
         else if (!m_isAiming && !m_isCrouched)
         {
             //moves player according to camera forward vector
-            Vector3 move = m_input.Move.x * moveCameraTarget.right + m_input.Move.y * moveCameraTarget.forward;
+            Vector3 move = m_input.Move.x * m_moveCameraTarget.right + m_input.Move.y * m_moveCameraTarget.forward;
             move.y = 0f;
 
             //rotate to face input direction relative to camera position
@@ -276,10 +288,10 @@ public class ShooterPlayerController : MonoBehaviour
 
     void SetCameraCrouchOffset(bool isCrouch)
     {
-        Vector3 offset = new(0f, aimCameraTarget.localPosition.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
+        Vector3 offset = new(0f, m_aimCameraTarget.localPosition.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
         m_col.center = new(m_col.center.x, m_col.center.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
         m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.05f);
-        aimCameraTarget.localPosition = moveCameraTarget.localPosition = offset;
+        m_aimCameraTarget.localPosition = m_moveCameraTarget.localPosition = offset;
     }
 
     private void OnAnimatorMove()
@@ -289,12 +301,12 @@ public class ShooterPlayerController : MonoBehaviour
         if (m_isAiming || m_isCrouched)
         {
             //moves player according to aim camera forward vector
-            move = m_input.Move.x * aimCameraTarget.right + m_input.Move.y * aimCameraTarget.forward;
+            move = m_input.Move.x * m_aimCameraTarget.right + m_input.Move.y * m_aimCameraTarget.forward;
         }
         else if (!m_isAiming && !m_isCrouched)
         {
             //moves player according to camera forward vector
-            move = m_input.Move.x * moveCameraTarget.right + m_input.Move.y * moveCameraTarget.forward;
+            move = m_input.Move.x * m_moveCameraTarget.right + m_input.Move.y * m_moveCameraTarget.forward;
         }
 
         move.y = 0f;
@@ -314,7 +326,7 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (Physics.SphereCast(Camera.main.transform.position, 0.5f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
         {
-            if (Physics.SphereCast(gun.BarrelLocation.position, 0.2f, hitInfo.point - gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
+            if (Physics.SphereCast(m_gun.BarrelLocation.position, 0.2f, hitInfo.point - m_gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
                 var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
                 if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 8f)
@@ -335,7 +347,7 @@ public class ShooterPlayerController : MonoBehaviour
         if (m_isAiming != isAiming)
         {
             m_anim.SetBool(m_HashAiming, isAiming);
-            aimImage.SetActive(isAiming);
+            m_aimImage.SetActive(isAiming);
             if (m_isCrouched)
             {
                 SetCameraCrouchOffset(!isAiming);
@@ -343,12 +355,12 @@ public class ShooterPlayerController : MonoBehaviour
             if (isAiming)
             {
                 ResetAim();
-                aimCamera.Priority = 11;
+                m_aimCamera.Priority = 11;
             }
             else
             {
                 ResetAim();
-                aimCamera.Priority = 9;
+                m_aimCamera.Priority = 9;
             }
             m_isAiming = isAiming;
         }
@@ -356,8 +368,8 @@ public class ShooterPlayerController : MonoBehaviour
 
     void ResetAim()
     {
-        TargetL.localRotation = m_baseTL;
-        TargetR.localRotation = m_baseTR;
+        m_TargetL.localRotation = m_baseTL;
+        m_TargetR.localRotation = m_baseTR;
         m_RPitch = m_baseTR.eulerAngles.x;
         m_RYaw = m_baseTR.eulerAngles.z;
         m_LPitch = m_baseTL.eulerAngles.x;
@@ -368,30 +380,41 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Fire()
     {
-        if(m_isAiming)
+        if (m_isAiming)
         {
-            gun.Fire(m_aimTarget);
+            m_gun.Fire(m_aimTarget);
         }
         else
         {
-            gun.Fire(gun.BarrelLocation.position+ gun.BarrelLocation.forward);
+            m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
         }
     }
+
+    public void PlayStep()
+    {
+        m_audio.PlayOneShot(m_stepSounds[Random.Range(0, m_stepSounds.Length)]);
+    }
+
+    public void PlayCrouch()
+    {
+        m_audio.PlayOneShot(m_crouchStep);
+    }
+
     /// <summary>
     /// Takes the damage from enemy's bullet
     /// </summary>
     void Hit()
     {
-        AddHealth(-m_hit);
+        AddHealth(-HitPoint);
         if (m_health <= 0)
         {
             Aim(false);
             m_dead = true;
-            m_input.LockInput();
-            m_anim.SetTrigger(m_HashDie);
+            m_input.Die();
         }
         else
         {
+            m_audio.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             m_anim.SetTrigger(m_HashHit);
         }
     }
@@ -404,7 +427,7 @@ public class ShooterPlayerController : MonoBehaviour
             m_health = 0;
         }
 
-        healthBar.value = m_health;
+        m_healthBar.value = m_health;
     }
 
     //Detects bullets
@@ -421,15 +444,26 @@ public class ShooterPlayerController : MonoBehaviour
     {
         m_damageVignette.intensity.value = 0f;
         //aimImage?.transform?.parent?.gameObject?.SetActive(false);
-        gun.transform.parent.gameObject.SetActive(false);
+        m_gun.transform.parent.gameObject.SetActive(false);
         GetComponent<RigBuilder>().enabled = false;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(gun.BarrelLocation.position, m_aimTarget);
+        Gizmos.DrawLine(m_gun.BarrelLocation.position, m_aimTarget);
         Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(gun.BarrelLocation.position, gun.BarrelLocation.position + gun.BarrelLocation.forward * m_aimDistance);
+        Gizmos.DrawLine(m_gun.BarrelLocation.position, m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * m_aimDistance);
+    }
+
+    public void Restart()
+    {
+        m_dead = false;
+        transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);
+        m_health = m_healthBar.maxValue;
+        m_healthBar.value = m_health;
+        m_damageVignette.intensity.value = 0f;
+        m_anim.Rebind();
+        m_anim.Update(0f);
     }
 }

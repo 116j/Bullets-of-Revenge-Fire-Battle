@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,25 +16,25 @@ public class PlayerInput : MonoBehaviour
     private bool m_lowerAttack;
     private bool m_upperBlock;
     private bool m_middleBlock;
-    private bool m_lowerBlock;
 
-    public Vector2 Move => inputLocked ? Vector2.zero : m_move;
-    public Vector2 Look => inputLocked ? Vector2.zero : m_look;
-    public bool Run => !inputLocked && m_run;
-    public bool Crouch => !inputLocked && m_crouch;
-    public bool Fire => !inputLocked && m_fire;
-    public bool Aim => !inputLocked && m_aim;
+    public Vector2 Move => m_inputLocked ? Vector2.zero : m_move;
+    public Vector2 Look => m_inputLocked ? Vector2.zero : m_look * m_cameraSensativity * m_invert;
+    public bool Run => !m_inputLocked && m_run;
+    public bool Crouch => !m_inputLocked && m_crouch;
+    public bool Fire => !m_inputLocked && m_fire;
+    public bool Aim => !m_inputLocked && m_aim;
 
-    public bool UpperAttack 
-    { 
-        get {
+    public bool UpperAttack
+    {
+        get
+        {
             if (m_upperAttack)
             {
                 m_upperAttack = false;
-                return !inputLocked;
+                return !m_inputLocked;
             }
-            return !inputLocked && m_upperAttack;
-        } 
+            return !m_inputLocked && m_upperAttack;
+        }
     }
     public bool LowerAttack
     {
@@ -41,28 +43,65 @@ public class PlayerInput : MonoBehaviour
             if (m_lowerAttack)
             {
                 m_lowerAttack = false;
-                return !inputLocked;
+                return !m_inputLocked;
             }
-            return !inputLocked && m_lowerAttack;
+            return !m_inputLocked && m_lowerAttack;
         }
     }
-    public bool UpperBlock => !inputLocked && m_upperBlock;
-    public bool MiddleBlock => !inputLocked && m_middleBlock;
-    public bool LowerBlock => !inputLocked && m_lowerBlock;
+    public bool UpperBlock => !m_inputLocked && m_upperBlock;
+    public bool MiddleBlock => !m_inputLocked && m_middleBlock;
 
-    bool inputLocked = false;
+    bool m_inputLocked = false;
+    float m_cameraSensativity = 1f;
+    Vector2 m_invert = new(1, 1);
+    bool m_playerDied=false;
 
     UnityEngine.InputSystem.PlayerInput m_input;
 
     private void Start()
     {
         Cursor.visible = false;
-        m_input=GetComponent<UnityEngine.InputSystem.PlayerInput>();
+        m_input = GetComponent<UnityEngine.InputSystem.PlayerInput>();
+        m_input.uiInputModule.cancel.action.performed += UIController.Instance.CancelLayout;
+    }
+
+    private void OnEnable()
+    {
+        if (m_input != null)
+            m_input.enabled = true;
+    }
+
+    private void OnDisable()
+    {
+        if (m_input != null)
+            m_input.enabled = false;
+    }
+
+    public void Die()
+    {
+        m_playerDied = true;
+        m_inputLocked = true;
+        UIController.Instance.SetDieLayout(m_playerDied);
     }
 
     public void LockInput()
     {
-        inputLocked = !inputLocked;
+        m_inputLocked = !m_inputLocked;
+    }
+
+    public void SetSensativity(Single value)
+    {
+        m_cameraSensativity = value;
+    }
+
+    public void SetInvertX(bool invertX)
+    {
+        m_invert.x = invertX ? 1 : -1;
+    }
+
+    public void SetInvertY(bool invertY)
+    {
+        m_invert.y = invertY ? 1 : -1;
     }
 
     public void OnMove(InputValue inputValue)
@@ -75,7 +114,7 @@ public class PlayerInput : MonoBehaviour
         m_look = inputValue.Get<Vector2>();
     }
 
-    public void OnCrouch(InputValue inputValue)
+    public void OnCrouch()
     {
         m_crouch = !m_crouch;
     }
@@ -99,7 +138,7 @@ public class PlayerInput : MonoBehaviour
     {
         m_fire = false;
     }
-    
+
     public void DisableCrouch()
     {
         m_crouch = false;
@@ -107,7 +146,13 @@ public class PlayerInput : MonoBehaviour
 
     public void ChangeGanre()
     {
+        if (m_input == null)
+        {
+            m_input = GetComponent<UnityEngine.InputSystem.PlayerInput>();
+        }
         m_input.SwitchCurrentActionMap("Fighting");
+        UIController.Instance.CurrentGame = GameType.Fighting;
+        m_inputLocked = true;
     }
 
     public void OnUpperAttack(InputValue inputValue)
@@ -129,8 +174,48 @@ public class PlayerInput : MonoBehaviour
     {
         m_middleBlock = inputValue.isPressed;
     }
-    public void OnLowerBlock(InputValue inputValue)
+
+    public void OnMenu()
     {
-        m_lowerBlock = inputValue.isPressed;
+        if (!m_playerDied)
+        {
+            Cursor.visible = UIController.Instance.SetActive();
+            m_inputLocked = Cursor.visible;
+        }
+    }
+
+    public void OnRestart()
+    {
+        if(m_playerDied)
+        {
+            if(UIController.Instance.CurrentGame == GameType.Fighting)
+            {
+                GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Restart();
+                GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Restart();
+            }
+            else
+            {
+                GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Restart();
+
+                foreach(var enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+                {
+                    Destroy(enemy);
+                }
+            }
+        }
+
+        m_playerDied = false;
+        UIController.Instance.SetDieLayout(m_playerDied);
+    }
+
+    public string GetCurrentControlScheme() => m_input.currentControlScheme;
+
+    public InputAction GetAction(string command) => m_input.actions.FindAction(new string(command.Where(c => !char.IsWhiteSpace(c)).ToArray()));
+
+    public string GetBindingId(string command)
+    {
+        var action = m_input.actions.FindAction(new string(command.Where(c => !char.IsWhiteSpace(c)).ToArray()));
+        int index = action.GetBindingIndex(group: m_input.currentControlScheme);
+        return action.bindings[index].id.ToString();
     }
 }

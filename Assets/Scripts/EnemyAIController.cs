@@ -7,18 +7,22 @@ public class EnemyAIController : MonoBehaviour
 {
     [SerializeField]
     //center of the body
-    Transform center;
+    Transform m_center;
     [SerializeField]
     //aimRig's aim
-    Transform TargetL;
+    Transform m_TargetL;
     [SerializeField]
-    Transform TargetR;
+    Transform m_TargetR;
     [SerializeField]
     //top of the rifle
-    Transform barrelLocation;
+    Transform m_barrelLocation;
     [SerializeField]
     //mask for detecting an ocupped spot in the cover
-    LayerMask spotOccupiedMask;
+    LayerMask m_spotOccupiedMask;
+    [SerializeField]
+    AudioClip m_stepSound;  
+    [SerializeField]
+    AudioClip m_reloadSound;
 
     //the number of created spots
     static int m_spotNum = 0;
@@ -30,6 +34,8 @@ public class EnemyAIController : MonoBehaviour
     Animator m_anim;
     CapsuleCollider m_col;
     ParticleSystem m_bullet;
+    AudioSource m_shootSound;
+    AudioSource m_audio;
 
     Action m_currentAction;
     GameObject m_currentCover;
@@ -62,8 +68,6 @@ public class EnemyAIController : MonoBehaviour
 
     readonly float m_walkSpeed = 4f;
     readonly float m_runSpeed = 7;
-    //how many point decrease from health when the enemy is hit
-    readonly float m_hit = 1f;
     //stop pursuing and start finding a cover
     readonly float m_detectDist = 40f;
     //distance where enemy can shoot the player
@@ -71,9 +75,6 @@ public class EnemyAIController : MonoBehaviour
     //distance where the enemy shood go away from the player
     readonly float m_safeDist = 8f;
     readonly float m_turnSpeed = 60f;
-    //time when the player should stop hiding
-    readonly float m_waitTime = 2f;
-    readonly int m_rifleCapacity = 30;
     readonly float m_detectRadius = 0.5f;
     readonly float m_hideOffset = 0.35f;
     readonly float m_riffleRotationStep = 0.5f;
@@ -82,21 +83,28 @@ public class EnemyAIController : MonoBehaviour
     Quaternion m_baseTR;
     float m_rifleRotation;
 
+    int RifleCapacity => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 30 : 50;
+    //time when the player should stop hiding
+    float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
+    //how many point decrease from health when the enemy is hit
+    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1f : 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
-        Transform aimRig = transform.Find("AimRig");
-        m_baseTL = TargetL.transform.localRotation;
-        m_baseTR = TargetR.transform.localRotation;
+        m_baseTL = m_TargetL.transform.localRotation;
+        m_baseTR = m_TargetR.transform.localRotation;
 
         m_target = GameObject.FindWithTag("Player").transform;
+        m_audio=GetComponent<AudioSource>();
         m_agent = GetComponent<NavMeshAgent>();
         m_obstacle = GetComponent<NavMeshObstacle>();
         m_obstacle.enabled = false;
         m_anim = GetComponent<Animator>();
         m_col = GetComponent<CapsuleCollider>();
         m_bullet = GetComponentInChildren<ParticleSystem>();
-        m_magazineStore = m_rifleCapacity;
+        m_shootSound = m_barrelLocation.GetComponent<AudioSource>();
+        m_magazineStore = RifleCapacity;
         m_currentAction = Pursue;
         // m_dead = true;
         ResetAim();
@@ -105,8 +113,9 @@ public class EnemyAIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(gameObject.name + " " + m_currentAction.Method.Name);
+        m_anim.SetBool(m_HashDie, m_dead);
 
+        Debug.Log(gameObject.name + " " + m_currentAction.Method.Name);
         if (!m_dead)
         {
             //if the player is feather than detectDist - start pursuing
@@ -136,7 +145,7 @@ public class EnemyAIController : MonoBehaviour
                 }
                 EnableObstacle(false);
                 m_anim.SetBool(m_HashAiming, false);
-                m_findCoverForward = (m_target.position - barrelLocation.position).normalized;
+                m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
                 m_currentAction = FindCover;
             }
 
@@ -168,8 +177,8 @@ public class EnemyAIController : MonoBehaviour
     /// </summary>
     void ResetAim()
     {
-        TargetL.localRotation = m_baseTL;
-        TargetR.localRotation = m_baseTR;
+        m_TargetL.localRotation = m_baseTL;
+        m_TargetR.localRotation = m_baseTR;
         m_RPitch = m_baseTR.eulerAngles.y;
         m_RYaw = m_baseTR.eulerAngles.z;
         m_LPitch = m_baseTL.eulerAngles.y;
@@ -186,7 +195,7 @@ public class EnemyAIController : MonoBehaviour
         {
             if (Mathf.Abs(m_target.position.z - transform.position.z) < m_detectDist)
             {
-                m_findCoverForward = (m_target.position - barrelLocation.position).normalized;
+                m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
                 m_currentAction = FindCover;
             }
         }
@@ -203,7 +212,7 @@ public class EnemyAIController : MonoBehaviour
             m_spotCol = null;
         }
 
-        var rayhits = Physics.SphereCastAll(barrelLocation.position, 3.5f, m_findCoverForward, m_detectDist, LayerMask.GetMask("Cover"))
+        var rayhits = Physics.SphereCastAll(m_barrelLocation.position, 3.5f, m_findCoverForward, m_detectDist, LayerMask.GetMask("Cover"))
             .OrderBy(c => Vector3.Distance(m_target.position, c.collider.gameObject.transform.position)).ToList();
         if (rayhits.Count > 0)
         {
@@ -268,7 +277,7 @@ public class EnemyAIController : MonoBehaviour
     {
         var coverBounds = m_currentCover.GetComponent<Collider>().bounds;
         bool found;
-        Vector3 standSpot = new Vector3(transform.position.x, center.position.y, coverBounds.center.z);
+        Vector3 standSpot = new Vector3(transform.position.x, m_center.position.y, coverBounds.center.z);
 
         //an indention from the cover
         if (m_target.position.z < m_currentCover.transform.position.z)
@@ -329,7 +338,7 @@ public class EnemyAIController : MonoBehaviour
         }
 
         //if there's no taken spots - create new spot
-        var rayhits = Physics.SphereCastAll(standSpot, m_detectRadius, Vector3.forward, 0.001f, spotOccupiedMask, QueryTriggerInteraction.Collide);
+        var rayhits = Physics.SphereCastAll(standSpot, m_detectRadius, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
         if (rayhits.Length == 0 || (rayhits.Length == 1 && rayhits[0].collider.gameObject == gameObject))
         {
             m_spotCol = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -367,7 +376,7 @@ public class EnemyAIController : MonoBehaviour
         while (!found && coverPos.x >= coverBounds.min.x && coverPos.x <= coverBounds.max.x)
         {
             coverPos.x += delta;
-            var rayhits = Physics.SphereCastAll(coverPos, m_detectRadius, Vector3.forward, 0.001f, spotOccupiedMask, QueryTriggerInteraction.Collide);
+            var rayhits = Physics.SphereCastAll(coverPos, m_detectRadius, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
             NavMesh.CalculatePath(transform.position, new Vector3(coverPos.x, transform.position.y, coverPos.z), NavMesh.AllAreas, path);
             if (path.status == NavMeshPathStatus.PathComplete && (rayhits.Length == 0 || (rayhits.Length == 1 && rayhits[0].collider.gameObject == gameObject)))
             {
@@ -437,15 +446,16 @@ public class EnemyAIController : MonoBehaviour
         //reloads the rifle
         if (m_magazineStore <= 0)
         {
-            m_magazineStore = m_rifleCapacity;
+            m_magazineStore = RifleCapacity;
             m_anim.SetTrigger(m_HashReload);
+            m_audio.PlayOneShot(m_reloadSound);
         }
         //if player is near - find new cover
         if (m_currentAction == Attack && Vector3.Dot(new Vector3(0f, 0f, m_currentCover.transform.position.z - m_spotCol.transform.position.z), m_target.position - m_spotCol.transform.position) < 0.4f)
         {
             ResetAim();
             m_anim.SetBool(m_HashAiming, false);
-            m_findCoverForward = (m_target.position - barrelLocation.position).normalized;
+            m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
             m_currentAction = FindCover;
             return;
         }
@@ -473,14 +483,14 @@ public class EnemyAIController : MonoBehaviour
                     transform.rotation = Quaternion.LookRotation(rotateDir);
                 }
             }
-            if (!m_anim.IsInTransition(1) && m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name == "Rifle_Aiming_Idle" && Vector3.Angle(barrelLocation.forward, (m_target.position - barrelLocation.position).normalized) < 15f)
+            if (!m_anim.IsInTransition(1) && m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name == "Rifle_Aiming_Idle" && Vector3.Angle(m_barrelLocation.forward, (m_target.position - m_barrelLocation.position).normalized) < 15f)
             {
                 //direction from the rifle's top to the player 
-                Vector3 aimDir = m_target.position + Vector3.up - barrelLocation.position - barrelLocation.forward * (m_target.position + Vector3.up - barrelLocation.position).magnitude;
+                Vector3 aimDir = m_target.position + Vector3.up - m_barrelLocation.position - m_barrelLocation.forward * (m_target.position + Vector3.up - m_barrelLocation.position).magnitude;
 
-                if (Physics.SphereCast(barrelLocation.position, m_detectRadius, m_target.position + Vector3.up - barrelLocation.position, out RaycastHit hit, m_shootDist, 1 << m_target.gameObject.layer))
+                if (Physics.SphereCast(m_barrelLocation.position, m_detectRadius, m_target.position + Vector3.up - m_barrelLocation.position, out RaycastHit hit, m_shootDist, 1 << m_target.gameObject.layer))
                 {
-                    aimDir = hit.point - barrelLocation.position - barrelLocation.forward * (hit.point - barrelLocation.position).magnitude;
+                    aimDir = hit.point - m_barrelLocation.position - m_barrelLocation.forward * (hit.point - m_barrelLocation.position).magnitude;
                 }
                 // slowly moves aim towards the player
                 if (Mathf.Abs(aimDir.x) > 0.02f)
@@ -495,20 +505,20 @@ public class EnemyAIController : MonoBehaviour
                     m_LPitch += m_rifleRotation;
                     m_RPitch += m_rifleRotation;
                 }
-                TargetR.localRotation = Quaternion.Slerp(TargetR.localRotation, Quaternion.Euler(TargetR.localRotation.eulerAngles.x, m_RPitch, m_RYaw), Time.deltaTime * m_turnSpeed);
-                TargetL.localRotation = Quaternion.Slerp(TargetL.localRotation, Quaternion.Euler(TargetL.localRotation.eulerAngles.x, m_LPitch, m_LYaw), Time.deltaTime * m_turnSpeed);
+                m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_TargetR.localRotation.eulerAngles.x, m_RPitch, m_RYaw), Time.deltaTime * m_turnSpeed);
+                m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_TargetL.localRotation.eulerAngles.x, m_LPitch, m_LYaw), Time.deltaTime * m_turnSpeed);
                 //if the rifle is pointinfg at the player -sets shoot target with a deviation
-                if (Physics.SphereCast(barrelLocation.position, m_detectRadius, barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
+                if (Physics.SphereCast(m_barrelLocation.position, m_detectRadius, m_barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                 {
                     m_targetPoint = hit.point;
-                    if (Physics.Raycast(barrelLocation.position, barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
+                    if (Physics.Raycast(m_barrelLocation.position, m_barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                     {
                         m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius);
                     }
                     m_anim.SetTrigger(m_HashShooting);
                 }
             }
-            else if(Vector3.Angle(barrelLocation.forward, (m_target.position - barrelLocation.position).normalized) >= 15f)
+            else if(Vector3.Angle(m_barrelLocation.forward, (m_target.position - m_barrelLocation.position).normalized) >= 15f)
             {
                 ResetAim();
             }
@@ -524,17 +534,17 @@ public class EnemyAIController : MonoBehaviour
     void Hide()
     {
         //if the player is near the enemy - find new cover
-        if (Physics.Raycast(barrelLocation.position, m_target.position + Vector3.up - barrelLocation.position, m_detectDist, 1<<m_target.gameObject.layer)
+        if (Physics.Raycast(m_barrelLocation.position, m_target.position + Vector3.up - m_barrelLocation.position, m_detectDist, 1<<m_target.gameObject.layer)
             && Vector3.Dot(new Vector3(0f, 0f, m_currentCover.transform.position.z - m_spotCol.transform.position.z), m_target.position+Vector3.up - m_spotCol.transform.position) < 0.2f)
         {
-            m_findCoverForward = (m_target.position - barrelLocation.position).normalized;
+            m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
             m_currentAction = FindCover;
             return;
         }
 
         m_waitTimer += Time.deltaTime;
 
-        if (m_waitTimer >= m_waitTime && !DetectPlayerShoot())
+        if (m_waitTimer >= WaitTime && !DetectPlayerShoot())
         {
             m_waitTimer = 0;
             m_col.center = new(m_col.center.x, m_col.center.y + m_hideOffset, 0f);
@@ -547,8 +557,7 @@ public class EnemyAIController : MonoBehaviour
     /// </summary>
     void Hit()
     {
-        m_anim.SetTrigger(m_HashHit);
-        m_health -= m_hit;
+        m_health -= HitPoint;
         if (m_health <= 0)
         {
             Die();
@@ -561,6 +570,7 @@ public class EnemyAIController : MonoBehaviour
             m_col.height -= (m_hideOffset + 0.2f);
             m_currentAction = Hide;
         }
+        m_anim.SetTrigger(m_HashHit);
     }
 
     void Die()
@@ -575,7 +585,6 @@ public class EnemyAIController : MonoBehaviour
             Destroy(m_spotCol);
             m_spotCol = null;
         }
-        m_anim.SetTrigger(m_HashDie);
     }
 
 
@@ -584,8 +593,20 @@ public class EnemyAIController : MonoBehaviour
         m_magazineStore--;
         m_bullet.transform.LookAt(m_targetPoint);
         m_bullet.Play();
-        Debug.Log("Enemy bullet plays: "+ m_bullet.isPlaying);
     }
+    
+    public void PlayShotSound()
+    {
+        m_shootSound.Play();
+        Debug.Log("Enemy bullet sound plays: " + m_shootSound.isPlaying);
+
+    }
+
+    public void PlayCrouch()
+    {
+        m_audio.PlayOneShot(m_stepSound);
+    }
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -600,9 +621,9 @@ public class EnemyAIController : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         if (m_target != null)
-            Gizmos.DrawLine(barrelLocation.position, m_target.position + Vector3.up * 1.5f);
+            Gizmos.DrawLine(m_barrelLocation.position, m_target.position + Vector3.up * 1.5f);
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(barrelLocation.position, barrelLocation.position + barrelLocation.forward * m_shootDist);
+        Gizmos.DrawLine(m_barrelLocation.position, m_barrelLocation.position + m_barrelLocation.forward * m_shootDist);
 
     }
 }

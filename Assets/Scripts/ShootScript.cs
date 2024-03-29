@@ -3,17 +3,17 @@ using UnityEngine;
 public class ShootScript : MonoBehaviour
 {
     [SerializeField]
-    GameObject bulletPrefab;
+    GameObject m_bulletPrefab;
     [SerializeField]
-    GameObject casingPrefab;
+    GameObject m_casingPrefab;
     [SerializeField]
-    ParticleSystem muzzleFlashParticles;
+    ParticleSystem m_muzzleFlashParticles;
     [SerializeField]
-    Transform barrelLocation;
+    Transform m_barrelLocation;
     [SerializeField]
-    Transform casingExitLocation;
+    Transform m_casingExitLocation;
 
-    public Transform BarrelLocation => barrelLocation;
+    public Transform BarrelLocation => m_barrelLocation;
 
     //"Specify time to destory the casing object
     readonly float m_destroyTimer = 4f;
@@ -41,17 +41,17 @@ public class ShootScript : MonoBehaviour
     //This function creates the bullet behavior
     public void Shoot()
     {
-        muzzleFlashParticles.Play();
+        m_muzzleFlashParticles.Play();
         m_shootSound.Play();
-        Instantiate(bulletPrefab, barrelLocation.position, barrelLocation.rotation).GetComponent<Rigidbody>().AddForce((m_targetPos-barrelLocation.position) * m_shotPower);
+        Instantiate(m_bulletPrefab, m_barrelLocation.position, m_barrelLocation.rotation).GetComponent<Rigidbody>().AddForce((m_targetPos-m_barrelLocation.position) * m_shotPower);
     }
 
     //This function creates a casing at the ejection slot
     public void CasingRelease()
     {
-        GameObject tempCasing = Instantiate(casingPrefab, casingExitLocation.position, casingExitLocation.rotation);
+        GameObject tempCasing = Instantiate(m_casingPrefab, m_casingExitLocation.position, m_casingExitLocation.rotation);
         //Add force on casing to push it out
-        tempCasing.GetComponent<Rigidbody>().AddExplosionForce(Random.Range(m_ejectPower * 0.7f, m_ejectPower), (casingExitLocation.position - casingExitLocation.right * 0.3f - casingExitLocation.up * 0.6f), 1f);
+        tempCasing.GetComponent<Rigidbody>().AddExplosionForce(Random.Range(m_ejectPower * 0.7f, m_ejectPower), (m_casingExitLocation.position - m_casingExitLocation.right * 0.3f - m_casingExitLocation.up * 0.6f), 1f);
         //Add torque to make casing spin in random direction
         tempCasing.GetComponent<Rigidbody>().AddTorque(new Vector3(0, Random.Range(100f, 500f), Random.Range(100f, 1000f)), ForceMode.Impulse);
 

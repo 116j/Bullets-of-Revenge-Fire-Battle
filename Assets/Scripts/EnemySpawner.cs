@@ -4,13 +4,13 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField]
-    GameObject enemyPerfab;
+    GameObject m_enemyPerfab;
     [SerializeField]
-    int amountToSpawn;
+    int m_amountToSpawn;
 
     [Header("Enemy materials:")]
     [SerializeField]
-    Material[] enemyMaterials;
+    Material[] m_enemyMaterials;
 
     readonly float m_spawnBreak = 1.5f;
 
@@ -21,10 +21,10 @@ public class EnemySpawner : MonoBehaviour
 
     IEnumerator CreateEnemies(Vector3 location)
     {
-        for (int i = 0; i < amountToSpawn; i++)
+        for (int i = 0; i < m_amountToSpawn; i++)
         {
-            GameObject enemy = Instantiate(enemyPerfab, location, enemyPerfab.transform.rotation);
-            enemy.name = enemyPerfab.name + i;
+            GameObject enemy = Instantiate(m_enemyPerfab, location, m_enemyPerfab.transform.rotation);
+            enemy.name = m_enemyPerfab.name + i;
 
             int materialNum = Random.Range(0, 3);
             for (int j = 0; j < 4; j++)
@@ -34,7 +34,7 @@ public class EnemySpawner : MonoBehaviour
                     render = enemy.transform.GetChild(j).GetComponentInChildren<Renderer>();
                 }
 
-                render.material = enemyMaterials[j * 3 + materialNum];
+                render.material = m_enemyMaterials[j * 3 + materialNum];
             }
             yield return new WaitForSeconds(m_spawnBreak);
         }

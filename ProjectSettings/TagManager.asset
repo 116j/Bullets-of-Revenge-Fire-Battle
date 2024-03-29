@@ -6,6 +6,8 @@ TagManager:
   tags:
   - bullet
   - attack
+  - bound
+  - Enemy
   layers:
   - Default
   - TransparentFX

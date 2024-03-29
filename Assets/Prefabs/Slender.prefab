@@ -1221,9 +1221,11 @@ GameObject:
   - component: {fileID: 1010010733671478586}
   - component: {fileID: 6957573965259036736}
   - component: {fileID: 4661089070066162218}
+  - component: {fileID: 4239245303205289919}
+  - component: {fileID: 7558143556450479778}
   m_Layer: 7
   m_Name: Slender
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1243,7 +1245,7 @@ Transform:
   - {fileID: 2348605131638083324}
   - {fileID: 5594087419419265357}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &6957573965259036736
 Animator:
@@ -1255,7 +1257,7 @@ Animator:
   m_GameObject: {fileID: 4061999138098054953}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 97b0cd269422460b9c5672eb06af8f7c, type: 3}
-  m_Controller: {fileID: 9100000, guid: 0b90019595f80ae41917875482250c5c, type: 2}
+  m_Controller: {fileID: 9100000, guid: db4382261a0f053499ed41af5e6ff8a5, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1281,14 +1283,55 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.237208
-  m_Height: 2.6062183
+  m_Radius: 0.39517528
+  m_Height: 2.45393
   m_Direction: 1
-  m_Center: {x: 0, y: 1.473422, z: 0}
+  m_Center: {x: -0.0000004838763, y: 1.3972778, z: 0.15796854}
+--- !u!54 &4239245303205289919
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4061999138098054953}
+  serializedVersion: 4
+  m_Mass: 80
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 116
+  m_CollisionDetection: 1
+--- !u!114 &7558143556450479778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4061999138098054953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298915f9c9fc4cc4996272441cf6af22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_startPosition: {fileID: 0}
+  m_healthBar: {fileID: 0}
 --- !u!1 &4162965382049386049
 GameObject:
   m_ObjectHideFlags: 0

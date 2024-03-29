@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public enum FightingStatus 
+public enum FightingStatus
 {
+    Die,
     Idle,
-
+    MiddleBlock,
+    UpperBlock,
+    LowerAttack,
+    MiddleAttack
 }

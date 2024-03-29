@@ -4,9 +4,7 @@ using UnityEngine;
 public class OnTriggerSend : MonoBehaviour
 {
     [SerializeField]
-    Transform spawnLocation;  
-    [SerializeField]
-    CommandReceiver receiver;
+    CommandReceiver m_receiver;
     bool m_commandSend;
 
     private void OnTriggerEnter(Collider other)
@@ -14,7 +12,7 @@ public class OnTriggerSend : MonoBehaviour
         if (!m_commandSend && other.gameObject.CompareTag("Player"))
         {
             m_commandSend = true;
-            receiver.Receive(spawnLocation.position);
+            m_receiver.Receive(transform.GetChild(0).position);
         }
     }
 }
