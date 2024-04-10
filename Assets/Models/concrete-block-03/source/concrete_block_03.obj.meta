@@ -24,6 +24,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: concrete_block_033
     second: {fileID: 2100000, guid: db1aa90fdf0630a419e58fe68f3dc408, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: defaultMat
+    second: {fileID: 2100000, guid: 89cb87d78b2e07f419735391ad653de6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -36,8 +41,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

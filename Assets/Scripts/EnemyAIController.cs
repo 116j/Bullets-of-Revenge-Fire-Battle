@@ -9,9 +9,10 @@ public class EnemyAIController : MonoBehaviour
     //center of the body
     Transform m_center;
     [SerializeField]
-    //aimRig's aim
+    //left arm rig target
     Transform m_TargetL;
     [SerializeField]
+    //right arm rig target
     Transform m_TargetR;
     [SerializeField]
     //top of the rifle
@@ -39,8 +40,10 @@ public class EnemyAIController : MonoBehaviour
 
     Action m_currentAction;
     GameObject m_currentCover;
+    //collider of spot where enemy is standing behind a cover
     GameObject m_spotCol;
 
+    //hashes for animator parameters
     readonly int m_HashHide = Animator.StringToHash("Hide");
     readonly int m_HashShooting = Animator.StringToHash("Shooting");
     readonly int m_HashAiming = Animator.StringToHash("Aiming");
@@ -51,9 +54,11 @@ public class EnemyAIController : MonoBehaviour
 
     bool m_dead;
     float m_health = 3;
+    //current amount of bullets in the riffle
     int m_magazineStore;
-    //
+    //timer for hide
     float m_waitTimer;
+    //if enemy is rotating
     bool m_rotating;
     //if there's no free cover in shoot dist
     bool m_noFree = false;
@@ -61,9 +66,13 @@ public class EnemyAIController : MonoBehaviour
     Vector3 m_findCoverForward;
     //shoot direction
     Vector3 m_targetPoint;
+    //vertical movement of left arm rig
     float m_LPitch;
+    //horizontal movement of left arm rig
     float m_LYaw;
+    //vertical movement of right arm rig
     float m_RPitch;
+    //horizontal movement of right arm rig
     float m_RYaw;
 
     readonly float m_walkSpeed = 4f;
@@ -75,12 +84,17 @@ public class EnemyAIController : MonoBehaviour
     //distance where the enemy shood go away from the player
     readonly float m_safeDist = 8f;
     readonly float m_turnSpeed = 60f;
+    //radius for spherecast
     readonly float m_detectRadius = 0.5f;
+    //offset of collider change when enemy is hidding
     readonly float m_hideOffset = 0.35f;
+    //max step per frame for riffle rig movement
     readonly float m_riffleRotationStep = 0.5f;
 
+    //start riffle rig rotations
     Quaternion m_baseTL;
     Quaternion m_baseTR;
+    //step per frame for riffle rig movement
     float m_rifleRotation;
 
     int RifleCapacity => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 30 : 50;
@@ -88,6 +102,7 @@ public class EnemyAIController : MonoBehaviour
     float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
     //how many point decrease from health when the enemy is hit
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1f : 0.5f;
+    public bool IsDead => m_dead;
 
     // Start is called before the first frame update
     void Start()
@@ -157,10 +172,6 @@ public class EnemyAIController : MonoBehaviour
             {
                 Attack();
             }
-        }
-        else if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Death"&& m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name !="Death Crouch")
-        {
-            m_anim.SetTrigger(m_HashDie);
         }
     }
     /// <summary>
@@ -572,7 +583,9 @@ public class EnemyAIController : MonoBehaviour
         }
         m_anim.SetTrigger(m_HashHit);
     }
-
+    /// <summary>
+    /// When enemy is dead, make it an obstacle 
+    /// </summary>
     void Die()
     {
         m_dead = true;
@@ -587,27 +600,30 @@ public class EnemyAIController : MonoBehaviour
         }
     }
 
-
     public void Shoot()
     {
         m_magazineStore--;
         m_bullet.transform.LookAt(m_targetPoint);
         m_bullet.Play();
     }
-    
+    /// <summary>
+    /// Playes shoot sound in animation
+    /// </summary>
     public void PlayShotSound()
     {
         m_shootSound.Play();
         Debug.Log("Enemy bullet sound plays: " + m_shootSound.isPlaying);
 
     }
-
-    public void PlayCrouch()
+    /// <summary>
+    /// Playes step sound in animation
+    /// </summary>
+    public void PlayStep()
     {
         m_audio.PlayOneShot(m_stepSound);
     }
 
-
+    //detect bullets
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("bullet") && !m_dead)

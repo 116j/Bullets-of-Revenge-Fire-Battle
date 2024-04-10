@@ -1,9 +1,10 @@
 public enum FightingStatus
 {
-    Die,
+    None = 0,
     Idle,
     MiddleBlock,
     UpperBlock,
     LowerAttack,
-    MiddleAttack
+    MiddleAttack,
+    Die
 }

@@ -51,10 +51,11 @@ public class PlayerInput : MonoBehaviour
     public bool UpperBlock => !m_inputLocked && m_upperBlock;
     public bool MiddleBlock => !m_inputLocked && m_middleBlock;
 
-    bool m_inputLocked = false;
+    bool m_inputLocked = true;
+    bool m_pause = false;
     float m_cameraSensativity = 1f;
     Vector2 m_invert = new(1, 1);
-    bool m_playerDied=false;
+    bool m_playerDied = false;
 
     UnityEngine.InputSystem.PlayerInput m_input;
 
@@ -177,35 +178,41 @@ public class PlayerInput : MonoBehaviour
 
     public void OnMenu()
     {
-        if (!m_playerDied)
+        if (!m_playerDied && !m_inputLocked || m_pause)
         {
-            Cursor.visible = UIController.Instance.SetActive();
-            m_inputLocked = Cursor.visible;
+            Cursor.visible = m_pause = UIController.Instance.SetActive();
         }
     }
 
     public void OnRestart()
     {
-        if(m_playerDied)
+        UIController.Instance.DarkenScreen();
+    }
+    /// <summary>
+    /// Reset player and enemies,disables die layout
+    /// </summary>
+    public void ResetGame()
+    {
+        if (m_playerDied)
         {
-            if(UIController.Instance.CurrentGame == GameType.Fighting)
+            m_playerDied = false;
+            UIController.Instance.SetDieLayout(m_playerDied);
+
+            if (UIController.Instance.CurrentGame == GameType.Fighting)
             {
-                GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Restart();
-                GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Restart();
+                GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
+                GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
             }
             else
             {
-                GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Restart();
+                GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Reset();
 
-                foreach(var enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+                foreach (var enemy in GameObject.FindGameObjectsWithTag("Enemy"))
                 {
                     Destroy(enemy);
                 }
             }
         }
-
-        m_playerDied = false;
-        UIController.Instance.SetDieLayout(m_playerDied);
     }
 
     public string GetCurrentControlScheme() => m_input.currentControlScheme;

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
@@ -13,7 +15,7 @@ public enum GameDifficulty
 
 public enum GameType
 {
-    Shooter, 
+    Shooter,
     Fighting
 }
 
@@ -57,7 +59,7 @@ public class UIController : MonoBehaviour
     [SerializeField]
     Slider m_gameVolumeSlider;
     [SerializeField]
-    Text m_subtitlesText;
+    Text m_subtitlesButtonText;
 
     [Header("Controls Layer Components")]
     [SerializeField]
@@ -71,22 +73,66 @@ public class UIController : MonoBehaviour
     [SerializeField]
     Text m_restartPressText;
 
+    [Header("")]
+    [SerializeField]
+    Text[] m_subtitleText;
+    [SerializeField]
+    Image m_blackScreen;
+
     static UIController m_instance;
     public static UIController Instance => m_instance;
-    public bool Subtitles => m_subtitles;
+    public bool Subtitles => m_subtitlesOn;
     public GameDifficulty GameDifficulty => m_gameDifficulty;
     public GameType CurrentGame { get; set; } = GameType.Shooter;
 
     bool m_isActive = false;
-    bool m_subtitles = true;
+    bool m_subtitlesOn = true;
     GameObject m_settings;
     GameDifficulty m_gameDifficulty = GameDifficulty.Normal;
+    int m_langIndex = 0;
     bool m_isControlsLayout = false;
     bool m_isGameLayout = false;
     bool m_isAudioLayout = false;
+    Color m_screenFadeColor;
+    bool m_darkenScreen = false;
+    readonly float m_fadeTime = 3f;
 
     readonly string[] m_fightingCommands = { "Upper Attack", "Lower Attack", "Upper Block", "Middle Block" };
     readonly string[] m_shooterCommands = { "Aim", "Fire", "Run", "Crouch" };
+    readonly string[][] m_subtitles = new string[2][]
+    {
+        new string[]{
+            "I will avnge all the pain that i had to experience!",
+            "Long time no see, Pudge!",
+            "You killed my famaly and ate my children, bastard!\n\r I will avenge them and cleanse the world of such evil as you, Slenderman!",
+        "Let's see who wins!"},
+        new string[]{
+        "Я отомщу за всю боль, которую мне пришлось испытать!",
+        "Давно не виделись, жирдяй!",
+        "Ты убил мою семью и съел моих детей, ублюдок!\n\r Я отомщу за них и очищу мир от такого зла, как ты, Слендермен!",
+        "Посмотрим кто кого!"}
+
+    };
+
+    readonly string[][] m_menuButtonNames = new string[2][]
+    {
+        new string[]{
+            "Игра","Звук", "Управление", "Выйти"
+        },
+        new string[]{
+            "Game", "Audio","Controls","Quit game"
+        }
+    };
+
+    readonly string[][] m_gameNames = new string[2][]
+    {
+       new string[]{
+            "Сложность","Звук", "Управление", "Выйти"
+        },
+        new string[]{
+            "Game", "Audio","Controls","Quit game"
+        }
+    };
 
     private void Awake()
     {
@@ -99,6 +145,21 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         m_settings = transform.GetChild(2).gameObject;
+        m_screenFadeColor = m_blackScreen.color;
+        m_screenFadeColor.a = 1f;
+    }
+
+    private void Update()
+    {
+        if (m_darkenScreen)
+        {
+            m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
+            if (m_blackScreen.color.a >= 0.99f)
+            {
+                m_darkenScreen = false;
+                m_input.ResetGame();
+            }
+        }
     }
 
     public bool SetActive()
@@ -131,15 +192,23 @@ public class UIController : MonoBehaviour
 
     public void TurnSubtitles()
     {
-        if (m_subtitles)
+        if (m_subtitlesOn)
         {
-            m_subtitlesText.text = "Off";
+            m_subtitlesButtonText.text = "Off";
+            foreach (Text subtitle in m_subtitleText)
+            {
+                subtitle.text = "";
+            }
         }
         else
         {
-            m_subtitlesText.text = "On";
+            m_subtitlesButtonText.text = "On";
+            for (int i = 0; i < m_subtitleText.Length; i++)
+            {
+                m_subtitleText[i].text = m_subtitles[m_langIndex][i];
+            }
         }
-        m_subtitles = !m_subtitles;
+        m_subtitlesOn = !m_subtitlesOn;
     }
 
     public void SetNormalDifficulty()
@@ -181,6 +250,11 @@ public class UIController : MonoBehaviour
         m_low.gameObject.GetComponent<Image>().color = m_low.colors.disabledColor;
         m_medium.gameObject.GetComponent<Image>().color = m_medium.colors.disabledColor;
         m_hard.gameObject.GetComponent<Image>().color = m_high.colors.pressedColor;
+    }
+
+    public void ChangeLanguage(int index)
+    {
+        m_langIndex = index;
     }
 
     public void SetGameLayout()
@@ -252,9 +326,7 @@ public class UIController : MonoBehaviour
         {
             m_commands[i].text = CurrentGame == GameType.Fighting ? m_fightingCommands[i] : m_shooterCommands[i];
             var rebind = m_buttons[i].GetComponentInParent<RebindActionUI>();
-            var actionReferece = new InputActionReference();
-            actionReferece.Set(m_input.GetAction(m_commands[i].text));
-            rebind.actionReference = actionReferece;
+            rebind.actionReference = InputActionReference.Create(m_input.GetAction(m_commands[i].text));
             rebind.bindingId = m_input.GetBindingId(m_commands[i].text);
         }
     }
@@ -305,6 +377,12 @@ public class UIController : MonoBehaviour
                 m_restartPressText.text = "Press ENTER to restart";
             }
         }
+    }
+
+    public void DarkenScreen()
+    {
+        m_darkenScreen = true;
+        m_blackScreen.gameObject.SetActive(true);
     }
 
     public void QuitGame()

@@ -349,14 +349,14 @@ AnimatorStateMachine:
   - {fileID: -4114794416148112490}
   m_EntryTransitions: []
   m_StateMachineTransitions:
-  - first: {fileID: -1676025370365953684}
-    second:
-    - {fileID: -1184670508140345089}
-    - {fileID: -8345704159772731677}
   - first: {fileID: -7232742933025094051}
     second:
     - {fileID: 2819157137107447205}
     - {fileID: -6004096548186286898}
+  - first: {fileID: -1676025370365953684}
+    second:
+    - {fileID: -1184670508140345089}
+    - {fileID: -8345704159772731677}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 20, y: -30, z: 0}
   m_EntryPosition: {x: -40, y: 130, z: 0}
@@ -751,43 +751,43 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Vertical
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Horizontal
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Hit
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Crouching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Aiming
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Die
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Legs

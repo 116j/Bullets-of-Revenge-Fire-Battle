@@ -12,8 +12,10 @@ public class ShooterPlayerController : MonoBehaviour
     [SerializeField]
     Transform m_startPosition;
     [SerializeField]
+    //left arm rig target
     Transform m_TargetL;
     [SerializeField]
+    //right arm rig target
     Transform m_TargetR;
     [SerializeField]
     ShootScript m_gun;
@@ -82,23 +84,26 @@ public class ShooterPlayerController : MonoBehaviour
     readonly float m_lowerCameraBorder = -25f;
     //height of the camera offset when the player crouches
     readonly float m_crouchOffset = 0.35f;
+    //max step per frame for gun rig movement
     readonly float m_gunRotationStep = 0.5f;
     readonly float m_vignetteMax = 0.64f;
     readonly float m_vignetteMin = 0.46f;
 
+    //start gun rig rotations
     Quaternion m_baseTR;
     Quaternion m_baseTL;
 
     //current player speed
     float m_currentPlayerSpeed;
+    //timer for health recovery
     float m_recoverWaitTime;
-    // vertical movement of camera
+    // vertical movement of left arm rig
     float m_LPitch;
-    //horizontal movement of camera
+    //horizontal movement of left arm rig
     float m_LYaw;
-    // vertical movement of camera
+    // vertical movement of right arm rig
     float m_RPitch;
-    //horizontal movement of camera
+    //horizontal movement of right arm rig
     float m_RYaw;
     // vertical movement of camera
     float m_cameraPitch;
@@ -108,6 +113,8 @@ public class ShooterPlayerController : MonoBehaviour
     Vector3 m_cameraChange;
     //vector of aim camera rotation
     Vector3 m_aimTarget;
+
+    //step per frame for gun rig movement
     float m_gunRotation;
 
     //a point for hit
@@ -127,9 +134,9 @@ public class ShooterPlayerController : MonoBehaviour
         m_damageVignette = (Vignette)m_damageVolume.components[0];
         m_audio = GetComponent<AudioSource>();
 
-        m_healthBar.gameObject.SetActive(true);
         m_healthBar.maxValue = m_health;
         m_healthBar.value = m_health;
+        m_input.LockInput();
     }
 
     /// <summary>
@@ -162,6 +169,7 @@ public class ShooterPlayerController : MonoBehaviour
         {
             if (m_health < m_healthBar.maxValue)
             {
+                //recover health
                 m_recoverWaitTime += Time.deltaTime;
                 if (m_recoverWaitTime >= RecoverTime)
                 {
@@ -169,6 +177,7 @@ public class ShooterPlayerController : MonoBehaviour
                     AddHealth(HitPoint);
                 }
 
+                // if health is less than 50%, show red pulsing vignette
                 if (m_health < m_healthBar.maxValue / 2)
                 {
                     if (Mathf.Approximately(m_damageVignette.intensity.value, m_vignetteMin) || m_damageVignette.intensity.value < m_vignetteMin)
@@ -205,8 +214,10 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (m_isAiming)
         {
+            //direction of aim
             Vector3 aimDir = m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * (m_aimTarget - m_gun.BarrelLocation.position).magnitude - m_aimTarget;
 
+            //calculate offset
             if (Mathf.Abs(aimDir.x) > 0.02f)
             {
                 m_gunRotation = Mathf.Abs(aimDir.x) <= m_gunRotationStep ? aimDir.x : (m_gunRotationStep * Mathf.Sign(aimDir.x) * Time.deltaTime * Mathf.Sign(m_aimTarget.z - transform.position.z) * m_cameraRotationSpeed);
@@ -219,6 +230,7 @@ public class ShooterPlayerController : MonoBehaviour
                 m_LPitch += m_gunRotation;
                 m_RPitch += m_gunRotation;
             }
+            //move gun rigs
             m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_RPitch, m_TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_cameraRotationSpeed);
             m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_LPitch, m_TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_cameraRotationSpeed);
         }
@@ -257,6 +269,7 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (m_isCrouched != m_input.Crouch)
         {
+            //if player is not standing behind a cover and crouch button is pressed, do nothing
             if (m_input.Crouch && Physics.Raycast(transform.position, transform.forward, 2f, LayerMask.GetMask("Cover")) || !m_input.Crouch)
             {
                 m_isCrouched = m_input.Crouch;
@@ -268,6 +281,7 @@ public class ShooterPlayerController : MonoBehaviour
                 m_input.DisableCrouch();
             }
         }
+        //if player moves away from a cover or stops standing behind it, stop crouching, despite crouch button hasn't been pressed
         else if (m_isCrouched &&
             (m_input.Move.y < -0.5f ||
            !Physics.Raycast(m_col.bounds.center, transform.forward, 3f, LayerMask.GetMask("Cover"))))
@@ -285,10 +299,15 @@ public class ShooterPlayerController : MonoBehaviour
         m_anim.SetBool(m_HashCrouching, m_isCrouched);
         m_anim.SetFloat(m_HashSpeed, m_currentPlayerSpeed);
     }
-
+    /// <summary>
+    /// Moves camera vericaly and changes collider
+    /// </summary>
+    /// <param name="isCrouch">begin or stop crouching</param>
     void SetCameraCrouchOffset(bool isCrouch)
     {
+        //moves cameras
         Vector3 offset = new(0f, m_aimCameraTarget.localPosition.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
+        //changes collider according to crouch animations
         m_col.center = new(m_col.center.x, m_col.center.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
         m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.05f);
         m_aimCameraTarget.localPosition = m_moveCameraTarget.localPosition = offset;
@@ -329,6 +348,7 @@ public class ShooterPlayerController : MonoBehaviour
             if (Physics.SphereCast(m_gun.BarrelLocation.position, 0.2f, hitInfo.point - m_gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
                 var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
+                // if the nearest enemy is not close, move aiming camera
                 if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 8f)
                 {
                     m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
@@ -348,6 +368,7 @@ public class ShooterPlayerController : MonoBehaviour
         {
             m_anim.SetBool(m_HashAiming, isAiming);
             m_aimImage.SetActive(isAiming);
+            //when crouch and aiming, stand up
             if (m_isCrouched)
             {
                 SetCameraCrouchOffset(!isAiming);
@@ -365,7 +386,9 @@ public class ShooterPlayerController : MonoBehaviour
             m_isAiming = isAiming;
         }
     }
-
+    /// <summary>
+    /// Reset rig values
+    /// </summary>
     void ResetAim()
     {
         m_TargetL.localRotation = m_baseTL;
@@ -389,12 +412,16 @@ public class ShooterPlayerController : MonoBehaviour
             m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
         }
     }
-
+    /// <summary>
+    /// Playes walk step sound in animation
+    /// </summary>
     public void PlayStep()
     {
         m_audio.PlayOneShot(m_stepSounds[Random.Range(0, m_stepSounds.Length)]);
     }
-
+    /// <summary>
+    /// Playes crouch step sound in animation
+    /// </summary>
     public void PlayCrouch()
     {
         m_audio.PlayOneShot(m_crouchStep);
@@ -442,9 +469,9 @@ public class ShooterPlayerController : MonoBehaviour
 
     private void OnDisable()
     {
+        m_input.LockInput();     
+        m_anim.SetFloat(m_HashSpeed, 0f);
         m_damageVignette.intensity.value = 0f;
-        //aimImage?.transform?.parent?.gameObject?.SetActive(false);
-        m_gun.transform.parent.gameObject.SetActive(false);
         GetComponent<RigBuilder>().enabled = false;
     }
 
@@ -455,8 +482,10 @@ public class ShooterPlayerController : MonoBehaviour
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(m_gun.BarrelLocation.position, m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * m_aimDistance);
     }
-
-    public void Restart()
+    /// <summary>
+    /// Reset player's values, when the player is dead
+    /// </summary>
+    public void Reset()
     {
         m_dead = false;
         transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);
