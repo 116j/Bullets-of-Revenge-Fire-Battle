@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.UI;
@@ -72,12 +72,28 @@ public class UIController : MonoBehaviour
     GameObject m_dieLayout;
     [SerializeField]
     Text m_restartPressText;
+    [SerializeField]
+    AudioClip m_dieAudio;
 
     [Header("")]
     [SerializeField]
     Text[] m_subtitleText;
+
+    [Header("Fighting")]
     [SerializeField]
     Image m_blackScreen;
+    [SerializeField]
+    Text m_startText;
+    [SerializeField]
+    Text m_winText;
+    [SerializeField]
+    AudioClip m_fightingMusic;
+    [SerializeField]
+    AudioClip m_startAudio;
+    [SerializeField]
+    AudioClip m_winAudio;
+    [SerializeField]
+    CommandReceiver m_finalCutscene;
 
     static UIController m_instance;
     public static UIController Instance => m_instance;
@@ -93,9 +109,14 @@ public class UIController : MonoBehaviour
     bool m_isControlsLayout = false;
     bool m_isGameLayout = false;
     bool m_isAudioLayout = false;
+
     Color m_screenFadeColor;
+    Color m_textFadeColor;
     bool m_darkenScreen = false;
+    bool m_startFighting = false;
     readonly float m_fadeTime = 3f;
+    bool m_restart = true;
+    AudioSource m_gameVoice;
 
     readonly string[] m_fightingCommands = { "Upper Attack", "Lower Attack", "Upper Block", "Middle Block" };
     readonly string[] m_shooterCommands = { "Aim", "Fire", "Run", "Crouch" };
@@ -105,33 +126,14 @@ public class UIController : MonoBehaviour
             "I will avnge all the pain that i had to experience!",
             "Long time no see, Pudge!",
             "You killed my famaly and ate my children, bastard!\n\r I will avenge them and cleanse the world of such evil as you, Slenderman!",
-        "Let's see who wins!"},
+        "Let's see who wins!",
+        "I have avenged my family and rid the world of evil! Now I can go to them!"},
         new string[]{
         "Я отомщу за всю боль, которую мне пришлось испытать!",
         "Давно не виделись, жирдяй!",
         "Ты убил мою семью и съел моих детей, ублюдок!\n\r Я отомщу за них и очищу мир от такого зла, как ты, Слендермен!",
-        "Посмотрим кто кого!"}
-
-    };
-
-    readonly string[][] m_menuButtonNames = new string[2][]
-    {
-        new string[]{
-            "Игра","Звук", "Управление", "Выйти"
-        },
-        new string[]{
-            "Game", "Audio","Controls","Quit game"
-        }
-    };
-
-    readonly string[][] m_gameNames = new string[2][]
-    {
-       new string[]{
-            "Сложность","Звук", "Управление", "Выйти"
-        },
-        new string[]{
-            "Game", "Audio","Controls","Quit game"
-        }
+        "Посмотрим кто кого!",
+        "Я отомстил за свою семью и избавил мир ото зла! Теперь я могу отправится к ним!"}
     };
 
     private void Awake()
@@ -145,8 +147,11 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         m_settings = transform.GetChild(2).gameObject;
+        m_gameVoice = GetComponent<AudioSource>();
         m_screenFadeColor = m_blackScreen.color;
         m_screenFadeColor.a = 1f;
+        m_textFadeColor = m_startText.color;
+        m_textFadeColor.a = 0f;
     }
 
     private void Update()
@@ -157,9 +162,59 @@ public class UIController : MonoBehaviour
             if (m_blackScreen.color.a >= 0.99f)
             {
                 m_darkenScreen = false;
-                m_input.ResetGame();
+                if (m_restart)
+                {
+                    StartFighting();
+                }
+                else
+                {
+                    m_winText.gameObject.SetActive(false);
+                    m_finalCutscene.Receive(Vector3.zero);
+                }
             }
         }
+
+        if (m_startFighting && m_blackScreen.isActiveAndEnabled)
+        {
+            m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
+            if (m_blackScreen.color.a < 0.01f)
+            {
+                m_blackScreen.gameObject.SetActive(false);
+                m_screenFadeColor.a = 1f;
+                m_gameVoice.PlayOneShot(m_startAudio);
+            }
+        }
+        //if screen is not black anymore, fades away start text and unlock player input in th end
+        if (m_startFighting && !m_blackScreen.isActiveAndEnabled && m_startText.isActiveAndEnabled)
+        {
+            m_startText.color = Color.Lerp(m_startText.color, m_textFadeColor, Time.deltaTime * m_fadeTime);
+            if (m_startText.color.a < 0.01f)
+            {
+                m_startText.gameObject.SetActive(false);
+                GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().StartGame();
+                m_startFighting = false;
+            }
+        }
+    }
+
+    public void StartFighting()
+    {
+        m_startFighting = true;
+        m_startText.gameObject.SetActive(true);
+        Color textColor = m_startText.color;
+        textColor.a = 1;
+        m_startText.color = textColor;
+        m_screenFadeColor.a = 0f;
+        m_restart = false;
+        Camera.main.GetComponent<AudioSource>().clip = m_fightingMusic;
+    }
+
+    public IEnumerator Win()
+    {
+        m_winText.gameObject.SetActive(true);
+        m_gameVoice.PlayOneShot(m_winAudio);
+        yield return new WaitForSeconds(m_fadeTime);
+        DarkenScreen();
     }
 
     public bool SetActive()
@@ -188,6 +243,13 @@ public class UIController : MonoBehaviour
     public void ChangeEffectsVolume(Single value)
     {
         m_mixer.SetFloat("SFXVolume", Mathf.Log10(value) * 10);
+    }
+
+    public void ChangeLanguage(int index)
+    {
+        m_langIndex = index;
+        TurnSubtitles();
+        m_subtitlesOn = !m_subtitlesOn;
     }
 
     public void TurnSubtitles()
@@ -250,11 +312,6 @@ public class UIController : MonoBehaviour
         m_low.gameObject.GetComponent<Image>().color = m_low.colors.disabledColor;
         m_medium.gameObject.GetComponent<Image>().color = m_medium.colors.disabledColor;
         m_hard.gameObject.GetComponent<Image>().color = m_high.colors.pressedColor;
-    }
-
-    public void ChangeLanguage(int index)
-    {
-        m_langIndex = index;
     }
 
     public void SetGameLayout()
@@ -365,6 +422,8 @@ public class UIController : MonoBehaviour
     public void SetDieLayout(bool set)
     {
         m_dieLayout.SetActive(set);
+        m_restart = true;
+        m_gameVoice.PlayOneShot(m_dieAudio);
 
         if (set)
         {

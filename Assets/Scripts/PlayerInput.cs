@@ -183,15 +183,10 @@ public class PlayerInput : MonoBehaviour
             Cursor.visible = m_pause = UIController.Instance.SetActive();
         }
     }
-
-    public void OnRestart()
-    {
-        UIController.Instance.DarkenScreen();
-    }
     /// <summary>
     /// Reset player and enemies,disables die layout
     /// </summary>
-    public void ResetGame()
+    public void OnRestart()
     {
         if (m_playerDied)
         {
@@ -213,6 +208,7 @@ public class PlayerInput : MonoBehaviour
                 }
             }
         }
+        UIController.Instance.DarkenScreen();
     }
 
     public string GetCurrentControlScheme() => m_input.currentControlScheme;

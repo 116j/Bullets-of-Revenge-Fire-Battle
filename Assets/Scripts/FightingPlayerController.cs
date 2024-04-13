@@ -10,12 +10,6 @@ public class FightingPlayerController : MonoBehaviour
     Transform m_startPosition;
     [SerializeField]
     Slider m_healthBar;
-    [SerializeField]
-    Text m_startText;
-    [SerializeField]
-    Image m_blackScreen;
-    [SerializeField]
-    AudioClip m_startAudio;
 
     PlayerInput m_input;
     Animator m_anim;
@@ -38,19 +32,16 @@ public class FightingPlayerController : MonoBehaviour
     float m_health = 10;
     FightingStatus m_status;
     bool m_dead = false;
-    bool m_win = true;
+    bool m_win = false;
     //if player is colliding with level bounds
     bool m_bounds = false;
     //if player is starting to go throw the enemy
     bool m_isGoingThrough = false;
-    Color m_textFadeColor;
-    Color m_screenFadeColor;
     FightingSlenerAI m_enemy;
 
     readonly int m_upperHeadAttackCount = 4;
     readonly int m_attackCount = 2;
     readonly float m_speed = 3f;
-    readonly float m_fadeTime = 3f;
 
     public FightingStatus PlayerStatus => m_status;
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.4f : 8f;
@@ -72,10 +63,6 @@ public class FightingPlayerController : MonoBehaviour
         m_input.ChangeGanre();
         m_enemy = GameObject.Find("Slender").GetComponent<FightingSlenerAI>();
 
-        m_textFadeColor = m_startText.color;
-        m_textFadeColor.a = 0f;
-        m_screenFadeColor = m_blackScreen.color;
-        m_screenFadeColor.a = 0f;
         //m_input.LockInput();
         m_healthBar.maxValue = m_health;
         Reset();
@@ -84,35 +71,16 @@ public class FightingPlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Fades away black screen
-        if (!m_dead&&m_blackScreen.isActiveAndEnabled)
-        {
-            m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
-            if (m_blackScreen.color.a < 0.01f)
-            {
-                m_blackScreen.gameObject.SetActive(false);
-                Camera.main.GetComponent<AudioSource>().PlayOneShot(m_startAudio);
-            }
-        }
-        //if screen is not black anymore, fades away start text and unlock player input in th end
-        if (!m_dead && !m_blackScreen.isActiveAndEnabled && m_startText.isActiveAndEnabled)
-        {
-            m_startText.color = Color.Lerp(m_startText.color, m_textFadeColor, Time.deltaTime * m_fadeTime);
-            if (m_startText.color.a < 0.01f)
-            {
-                m_startText.gameObject.SetActive(false);
-                m_status = FightingStatus.Idle;
-                m_input.LockInput();
-            }
-        }
         m_anim.SetBool(m_HashDie, m_dead);
 
         // starts win animation and locks input if the enemy is dead
         if (m_enemy.Dead && !m_win)
         {
             m_win = true;
-            m_anim.SetBool(m_HashWin, m_enemy.Dead);
+            m_anim.SetBool(m_HashWin, true);
             m_input.LockInput();
+            StartCoroutine(UIController.Instance.Win());
+            return;
         }
 
         m_anim.SetFloat(m_HashHorizontal, m_input.Move.x);
@@ -152,9 +120,16 @@ public class FightingPlayerController : MonoBehaviour
 
     }
 
+    public void StartGame()
+    {
+        m_status = FightingStatus.Idle;
+        m_input.LockInput();
+    }
+
     private void OnAnimatorMove()
     {
-        m_rb.MovePosition(m_rb.position + m_anim.deltaPosition.magnitude * transform.forward * m_speed * m_input.Move.x * (m_bounds||(m_input.Move.x > 0&&m_isGoingThrough) ? 0 : 1));
+        m_isGoingThrough = m_input.Move.x > 0 && Vector3.Distance(transform.position, m_enemy.transform.position) < 0.7f;
+        m_rb.MovePosition(m_rb.position + m_anim.deltaPosition.magnitude * transform.forward * m_speed * m_input.Move.x * (m_bounds || m_isGoingThrough ? 0 : 1));
     }
 
     void Hit(int hitPart)
@@ -203,8 +178,11 @@ public class FightingPlayerController : MonoBehaviour
             m_bounds = Vector3.Dot(transform.forward, (other.transform.position - transform.position).normalized) < 0.7f && m_input.Move.x < 0
        || Vector3.Dot(transform.forward, (other.transform.position - transform.position).normalized) > 0.7f && m_input.Move.x > 0;
         }
-        
-        m_isGoingThrough = !m_dead && other.gameObject.CompareTag("Enemy");
+        else if (!m_dead && other.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log(Vector3.Distance(transform.position, other.transform.position));
+        }
+
     }
     /// <summary>
     /// Reset player's values, when the player is dead
@@ -221,9 +199,5 @@ public class FightingPlayerController : MonoBehaviour
         m_healthBar.value = m_health;
         m_anim.Rebind();
         m_anim.Update(0f);
-        m_startText.gameObject.SetActive(true);
-        Color textColor = m_startText.color;
-        textColor.a = 1;
-        m_startText.color = textColor;
     }
 }

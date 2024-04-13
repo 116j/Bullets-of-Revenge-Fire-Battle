@@ -135,8 +135,8 @@ public class ShooterPlayerController : MonoBehaviour
         m_audio = GetComponent<AudioSource>();
 
         m_healthBar.maxValue = m_health;
-        m_healthBar.value = m_health;
-        m_input.LockInput();
+        Reset();
+        //m_input.LockInput();
     }
 
     /// <summary>
