@@ -15,4 +15,9 @@ public class OnTriggerSend : MonoBehaviour
             m_receiver.Receive(transform.GetChild(0).position);
         }
     }
+
+    public void Reset()
+    {
+        m_commandSend = false;
+    }
 }

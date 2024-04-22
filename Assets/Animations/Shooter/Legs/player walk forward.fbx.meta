@@ -16,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -57,14 +55,14 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.5370488
+      - time: 0.41598344
         functionName: PlayStep
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 45f098bb899673c40a0a8c1a1b28baa4, type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.95689976
+      - time: 0.8527835
         functionName: PlayStep
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 45f098bb899673c40a0a8c1a1b28baa4, type: 3}

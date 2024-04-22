@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum GameDifficulty
@@ -36,6 +38,8 @@ public class UIController : MonoBehaviour
     GameObject m_gameLayout;
     [SerializeField]
     GameObject m_controlsLayout;
+    [SerializeField]
+    GameObject m_startLayout;
 
     [Header("Game Components")]
     [SerializeField]
@@ -114,8 +118,9 @@ public class UIController : MonoBehaviour
     Color m_textFadeColor;
     bool m_darkenScreen = false;
     bool m_startFighting = false;
-    readonly float m_fadeTime = 3f;
-    bool m_restart = true;
+    bool m_startShooter = false;
+    readonly float m_fadeTime = 1.5f;
+    bool m_restart = false;
     AudioSource m_gameVoice;
 
     readonly string[] m_fightingCommands = { "Upper Attack", "Lower Attack", "Upper Block", "Middle Block" };
@@ -161,27 +166,40 @@ public class UIController : MonoBehaviour
             m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
             if (m_blackScreen.color.a >= 0.99f)
             {
+                m_blackScreen.color = m_screenFadeColor;
+
                 m_darkenScreen = false;
-                if (m_restart)
+                if (m_restart&&CurrentGame == GameType.Fighting)
                 {
                     StartFighting();
                 }
+                else if(m_restart && CurrentGame == GameType.Shooter)
+                {
+                    StartShooter();
+                }
                 else
                 {
+                    Camera.main.GetComponent<AudioSource>().Stop();
                     m_winText.gameObject.SetActive(false);
                     m_finalCutscene.Receive(Vector3.zero);
                 }
             }
         }
 
-        if (m_startFighting && m_blackScreen.isActiveAndEnabled)
+        if ((m_startFighting|| m_startShooter) && m_blackScreen.isActiveAndEnabled)
         {
             m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
             if (m_blackScreen.color.a < 0.01f)
             {
                 m_blackScreen.gameObject.SetActive(false);
                 m_screenFadeColor.a = 1f;
+                if(m_startFighting)
                 m_gameVoice.PlayOneShot(m_startAudio);
+                else if(m_startShooter)
+                {
+                    m_startShooter = false;
+                    m_input.LockInput();
+                }
             }
         }
         //if screen is not black anymore, fades away start text and unlock player input in th end
@@ -207,6 +225,23 @@ public class UIController : MonoBehaviour
         m_screenFadeColor.a = 0f;
         m_restart = false;
         Camera.main.GetComponent<AudioSource>().clip = m_fightingMusic;
+        Camera.main.GetComponent<AudioSource>().Play();
+    }
+
+    void StartShooter()
+    {
+        m_startShooter = true;
+        m_screenFadeColor.a = 0f;
+        m_restart = false;
+
+        GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Reset();
+
+        foreach (OnTriggerSend trigger in GameObject.Find("TriggerZones").GetComponentsInChildren<OnTriggerSend>())
+        {
+            trigger.Reset();
+        }
+
+        EnemySpawner.Instance.DestroyAll();
     }
 
     public IEnumerator Win()
@@ -222,34 +257,35 @@ public class UIController : MonoBehaviour
         m_isActive = !m_isActive;
         Time.timeScale += m_isActive ? -1 : 1;
         m_settings.SetActive(m_isActive);
+        m_startLayout.SetActive(!m_isActive && !m_input.GameStrted);
         SetGameLayout();
         return m_isActive;
     }
 
     public void Close()
     {
-        SetActive();
+        m_input.ActivateSettings();
     }
 
     public void ChangeGameVolume(Single value)
     {
-        m_mixer.SetFloat("MasterVolume", Mathf.Log10(value) * 10);
+        m_mixer.SetFloat("MasterVolume", Mathf.Log10(value) * 20);
     }
 
     public void ChangeMusicVolume(Single value)
     {
-        m_mixer.SetFloat("MusicVolume", Mathf.Log10(value) * 10);
+        m_mixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
     }
     public void ChangeEffectsVolume(Single value)
     {
-        m_mixer.SetFloat("SFXVolume", Mathf.Log10(value) * 10);
+        m_mixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
     }
 
     public void ChangeLanguage(int index)
     {
         m_langIndex = index;
-        TurnSubtitles();
         m_subtitlesOn = !m_subtitlesOn;
+        TurnSubtitles();
     }
 
     public void TurnSubtitles()
@@ -276,49 +312,68 @@ public class UIController : MonoBehaviour
     public void SetNormalDifficulty()
     {
         m_gameDifficulty = GameDifficulty.Normal;
-        m_normal.gameObject.GetComponent<Image>().color = m_normal.colors.pressedColor;
-        m_hard.gameObject.GetComponent<Image>().color = m_hard.colors.disabledColor;
+        var normalColors = m_normal.colors;
+        var hardColors = m_normal.colors;
+        normalColors.normalColor = normalColors.selectedColor;
+        hardColors.normalColor = hardColors.disabledColor;
+        m_hard.colors = hardColors;
+        m_normal.colors = normalColors;
     }
 
     public void SetHardDifficulty()
     {
         m_gameDifficulty = GameDifficulty.Hard;
-        m_hard.gameObject.GetComponent<Image>().color = m_hard.colors.pressedColor;
-        m_normal.gameObject.GetComponent<Image>().color = m_normal.colors.disabledColor;
+        var normalColors = m_normal.colors;
+        var hardColors = m_normal.colors;
+        normalColors.normalColor = normalColors.disabledColor;
+        hardColors.normalColor = hardColors.selectedColor;
+        m_hard.colors = hardColors;
+        m_normal.colors = normalColors;
     }
 
     public void SetLowQuality()
     {
         QualitySettings.SetQualityLevel(0, true);
 
-        m_low.gameObject.GetComponent<Image>().color = m_low.colors.pressedColor;
-        m_medium.gameObject.GetComponent<Image>().color = m_medium.colors.disabledColor;
-        m_hard.gameObject.GetComponent<Image>().color = m_high.colors.disabledColor;
+        var lowColors = m_low.colors;
+        var otherColors = m_high.colors;
+        lowColors.normalColor = lowColors.selectedColor;
+        otherColors.normalColor = otherColors.disabledColor;
+        m_low.colors = lowColors;
+        m_high.colors = otherColors;
+        m_medium.colors = otherColors;
     }
 
     public void SetMediumQuality()
     {
         QualitySettings.SetQualityLevel(1, true);
 
-        m_low.gameObject.GetComponent<Image>().color = m_low.colors.disabledColor;
-        m_medium.gameObject.GetComponent<Image>().color = m_medium.colors.pressedColor;
-        m_hard.gameObject.GetComponent<Image>().color = m_high.colors.disabledColor;
+        var mediumColors = m_medium.colors;
+        var otherColors = m_high.colors;
+        mediumColors.normalColor = mediumColors.selectedColor;
+        otherColors.normalColor = otherColors.disabledColor;
+        m_medium.colors = mediumColors;
+        m_high.colors = otherColors;
+        m_low.colors = otherColors;
     }
 
     public void SetHighQuality()
     {
         QualitySettings.SetQualityLevel(2, true);
 
-        m_low.gameObject.GetComponent<Image>().color = m_low.colors.disabledColor;
-        m_medium.gameObject.GetComponent<Image>().color = m_medium.colors.disabledColor;
-        m_hard.gameObject.GetComponent<Image>().color = m_high.colors.pressedColor;
+        var highColors = m_high.colors;
+        var otherColors = m_medium.colors;
+        highColors.normalColor = highColors.selectedColor;
+        otherColors.normalColor = otherColors.disabledColor;
+        m_high.colors = highColors;
+        m_low.colors = otherColors;
+        m_medium.colors = otherColors;
     }
 
     public void SetGameLayout()
     {
         if (!m_gameLayout.activeInHierarchy)
         {
-
             m_isGameLayout = true;
             m_isControlsLayout = m_isAudioLayout = false;
 
@@ -332,7 +387,7 @@ public class UIController : MonoBehaviour
             {
                 SetHardDifficulty();
             }
-            m_normal.Select();
+                m_normal.Select();
 
             switch (QualitySettings.GetQualityLevel())
             {
@@ -358,7 +413,7 @@ public class UIController : MonoBehaviour
 
             SetLayouts();
 
-            m_gameVolumeSlider.Select();
+                m_gameVolumeSlider.Select();
         }
     }
 
@@ -415,6 +470,10 @@ public class UIController : MonoBehaviour
             m_controlsButton.gameObject.GetComponent<Image>().sprite = m_controlsButton.spriteState.disabledSprite;
             m_controlsButton.Select();
         }
+        else if (m_input.GameStrted)
+        {
+            m_input.ActivateSettings();
+        }
 
         m_isGameLayout = m_isAudioLayout = m_isControlsLayout = false;
     }
@@ -423,7 +482,8 @@ public class UIController : MonoBehaviour
     {
         m_dieLayout.SetActive(set);
         m_restart = true;
-        m_gameVoice.PlayOneShot(m_dieAudio);
+        if (set)
+            m_gameVoice.PlayOneShot(m_dieAudio);
 
         if (set)
         {
@@ -453,4 +513,9 @@ public class UIController : MonoBehaviour
 #endif
     }
 
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 }

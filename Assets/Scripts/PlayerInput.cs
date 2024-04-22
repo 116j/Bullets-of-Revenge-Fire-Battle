@@ -56,12 +56,15 @@ public class PlayerInput : MonoBehaviour
     float m_cameraSensativity = 1f;
     Vector2 m_invert = new(1, 1);
     bool m_playerDied = false;
+    bool m_gameStarted = false;
 
     UnityEngine.InputSystem.PlayerInput m_input;
 
+    public bool GameStrted => m_gameStarted;
+
     private void Start()
     {
-        Cursor.visible = false;
+        Cursor.visible = true;
         m_input = GetComponent<UnityEngine.InputSystem.PlayerInput>();
         m_input.uiInputModule.cancel.action.performed += UIController.Instance.CancelLayout;
     }
@@ -76,6 +79,12 @@ public class PlayerInput : MonoBehaviour
     {
         if (m_input != null)
             m_input.enabled = false;
+    }
+
+    public void StartGame()
+    {
+        m_gameStarted = true;
+        Cursor.visible = false;
     }
 
     public void Die()
@@ -117,17 +126,17 @@ public class PlayerInput : MonoBehaviour
 
     public void OnCrouch()
     {
-        m_crouch = !m_crouch;
+        m_crouch = !m_crouch&&!m_inputLocked;
     }
 
     public void OnFire(InputValue inputValue)
     {
-        m_fire = inputValue.isPressed;
+        m_fire = inputValue.isPressed && !m_inputLocked;
     }
 
     public void OnRun(InputValue inputValue)
     {
-        m_run = inputValue.isPressed;
+        m_run = inputValue.isPressed && !m_inputLocked;
     }
 
     public void OnAim(InputValue inputValue)
@@ -178,10 +187,16 @@ public class PlayerInput : MonoBehaviour
 
     public void OnMenu()
     {
-        if (!m_playerDied && !m_inputLocked || m_pause)
+        if (!m_playerDied && !m_inputLocked || m_pause || !m_gameStarted && m_pause)
         {
-            Cursor.visible = m_pause = UIController.Instance.SetActive();
+            ActivateSettings();
         }
+    }
+
+    public void ActivateSettings()
+    {
+        m_pause = UIController.Instance.SetActive();
+        Cursor.visible = m_pause||!m_gameStarted;
     }
     /// <summary>
     /// Reset player and enemies,disables die layout
@@ -190,6 +205,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (m_playerDied)
         {
+            UIController.Instance.DarkenScreen();
             m_playerDied = false;
             UIController.Instance.SetDieLayout(m_playerDied);
 
@@ -198,17 +214,7 @@ public class PlayerInput : MonoBehaviour
                 GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
                 GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
             }
-            else
-            {
-                GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Reset();
-
-                foreach (var enemy in GameObject.FindGameObjectsWithTag("Enemy"))
-                {
-                    Destroy(enemy);
-                }
-            }
         }
-        UIController.Instance.DarkenScreen();
     }
 
     public string GetCurrentControlScheme() => m_input.currentControlScheme;

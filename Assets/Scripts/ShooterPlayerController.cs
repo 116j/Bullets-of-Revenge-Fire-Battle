@@ -34,6 +34,10 @@ public class ShooterPlayerController : MonoBehaviour
     [SerializeField]
     VolumeProfile m_damageVolume;
     [SerializeField]
+    AudioSource m_voice;
+    [SerializeField]
+    AudioSource m_steps;
+    [SerializeField]
     AudioClip m_crouchStep;
     [SerializeField]
     AudioClip[] m_stepSounds;
@@ -45,7 +49,6 @@ public class ShooterPlayerController : MonoBehaviour
     Rigidbody m_rb;
     CapsuleCollider m_col;
     Vignette m_damageVignette;
-    AudioSource m_audio;
 
     bool m_dead = false;
     //if player is in aiming mode
@@ -132,7 +135,6 @@ public class ShooterPlayerController : MonoBehaviour
         m_rb = GetComponent<Rigidbody>();
         m_col = GetComponent<CapsuleCollider>();
         m_damageVignette = (Vignette)m_damageVolume.components[0];
-        m_audio = GetComponent<AudioSource>();
 
         m_healthBar.maxValue = m_health;
         Reset();
@@ -242,7 +244,10 @@ public class ShooterPlayerController : MonoBehaviour
     {
         float nextSpeed = m_input.Run ? m_playerRunSpeed : m_playerWalkSpeed;
         if (m_input.Move == Vector2.zero)
+        {
+            m_steps.Stop();
             nextSpeed = 0f;
+        }
         //smoothly change player speed
         m_currentPlayerSpeed = Mathf.Lerp(m_currentPlayerSpeed, nextSpeed, Time.fixedDeltaTime * m_speedChange);
         if (m_currentPlayerSpeed < 0.01f)
@@ -403,13 +408,16 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Fire()
     {
-        if (m_isAiming)
+        if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit")
         {
-            m_gun.Fire(m_aimTarget);
-        }
-        else
-        {
-            m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
+            if (m_isAiming)
+            {
+                m_gun.Fire(m_aimTarget);
+            }
+            else
+            {
+                m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
+            }
         }
     }
     /// <summary>
@@ -417,14 +425,16 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     public void PlayStep()
     {
-        m_audio.PlayOneShot(m_stepSounds[Random.Range(0, m_stepSounds.Length)]);
+        m_steps.clip = m_stepSounds[Random.Range(0, m_stepSounds.Length)];
+        m_steps.Play();
     }
     /// <summary>
     /// Playes crouch step sound in animation
     /// </summary>
     public void PlayCrouch()
     {
-        m_audio.PlayOneShot(m_crouchStep);
+        m_steps.clip = m_crouchStep;
+        m_steps.Play();
     }
 
     /// <summary>
@@ -441,7 +451,7 @@ public class ShooterPlayerController : MonoBehaviour
         }
         else
         {
-            m_audio.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
+            m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             m_anim.SetTrigger(m_HashHit);
         }
     }
@@ -489,10 +499,13 @@ public class ShooterPlayerController : MonoBehaviour
     {
         m_dead = false;
         transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);
+        m_rb.position = m_startPosition.position;
+        m_rb.rotation = m_startPosition.rotation;
         m_health = m_healthBar.maxValue;
         m_healthBar.value = m_health;
         m_damageVignette.intensity.value = 0f;
         m_anim.Rebind();
         m_anim.Update(0f);
+        m_cameraPitch = m_cameraYaw = 0f;
     }
 }

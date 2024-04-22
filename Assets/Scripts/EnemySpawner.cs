@@ -1,5 +1,8 @@
+using NUnit.Framework;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -12,7 +15,22 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField]
     Material[] m_enemyMaterials;
 
+    List<GameObject> m_enemies;
+
     readonly float m_spawnBreak = 1.5f;
+
+    static EnemySpawner m_instance;
+    public static EnemySpawner Instance => m_instance;
+
+    private void Awake()
+    {
+        if (m_instance == null)
+        {
+            m_instance = this;
+        }
+
+        m_enemies = new List<GameObject>();
+    }
 
     public void SpawnEnemies(Vector3 location)
     {
@@ -26,7 +44,7 @@ public class EnemySpawner : MonoBehaviour
             GameObject enemy = Instantiate(m_enemyPerfab, location, m_enemyPerfab.transform.rotation);
             enemy.name = m_enemyPerfab.name + i;
 
-            int materialNum = Random.Range(0, 3);
+            int materialNum = Random.Range(0, 2);
             for (int j = 0; j < 4; j++)
             {
                 if(!enemy.transform.GetChild(j).TryGetComponent<Renderer>(out var render))
@@ -34,9 +52,21 @@ public class EnemySpawner : MonoBehaviour
                     render = enemy.transform.GetChild(j).GetComponentInChildren<Renderer>();
                 }
 
-                render.material = m_enemyMaterials[j * 3 + materialNum];
+                render.material = m_enemyMaterials[j * 2 + materialNum];
             }
+
+            m_enemies.Add(enemy);
             yield return new WaitForSeconds(m_spawnBreak);
         }
+    }
+
+    public void DestroyAll()
+    {
+        foreach (var enemy in m_enemies)
+        {
+            Destroy(enemy);
+        }
+
+        m_enemies.Clear();
     }
 }

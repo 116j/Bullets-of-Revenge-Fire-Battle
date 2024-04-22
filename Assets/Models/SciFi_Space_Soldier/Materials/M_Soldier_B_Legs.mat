@@ -114,6 +114,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0
@@ -143,7 +144,7 @@ Material:
     - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 1
+    - _Smoothness: 0.697
     - _SmoothnessTextureChannel: 0
     - _Specular: 1
     - _SpecularColorized: 0.826
@@ -157,8 +158,8 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.07079922, g: 0.21663293, b: 0.3490566, a: 1}
-    - _Color: {r: 0.07079922, g: 0.21663293, b: 0.3490566, a: 1}
+    - _BaseColor: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 1}
+    - _Color: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 1}
     - _Color1: {r: 0.42409173, g: 0.57760227, b: 0.7794118, a: 1}
     - _Color2: {r: 0.33823532, g: 0.677188, b: 1, a: 1}
     - _DamageColor: {r: 1, g: 1, b: 1, a: 1}

@@ -10,6 +10,10 @@ public class FightingPlayerController : MonoBehaviour
     Transform m_startPosition;
     [SerializeField]
     Slider m_healthBar;
+    [SerializeField]
+    AudioSource m_voice;
+    [SerializeField]
+    AudioClip[] m_hitSounds;
 
     PlayerInput m_input;
     Animator m_anim;
@@ -29,7 +33,7 @@ public class FightingPlayerController : MonoBehaviour
     readonly int m_HashDie = Animator.StringToHash("Die");
     readonly int m_HashWin = Animator.StringToHash("Win");
 
-    float m_health = 10;
+    float m_health = 20;
     FightingStatus m_status;
     bool m_dead = false;
     bool m_win = false;
@@ -53,6 +57,7 @@ public class FightingPlayerController : MonoBehaviour
         m_input = GetComponent<PlayerInput>();
         m_rb = GetComponent<Rigidbody>();
         m_col = GetComponent<CapsuleCollider>();
+
         m_col.center = new Vector3(0f, m_col.center.y + 0.03f, 0.05f);
         m_col.radius += 0.06f;
         m_col.height += 0.1f;
@@ -145,6 +150,7 @@ public class FightingPlayerController : MonoBehaviour
         }
         else
         {
+            m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);

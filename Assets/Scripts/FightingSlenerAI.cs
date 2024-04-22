@@ -8,13 +8,16 @@ public class FightingSlenerAI : MonoBehaviour
     Transform m_startPosition;
     [SerializeField]
     Slider m_healthBar;
+    [SerializeField]
+    AudioClip[] m_hitSounds;
 
     Collider m_col;
     Animator m_anim;
     Rigidbody m_rb;
     FightingPlayerController m_player;
+    AudioSource m_audio;
 
-    float m_health = 10;
+    float m_health = 20;
     //move direction
     int m_move = 0;
     bool m_bounds = false;
@@ -57,6 +60,7 @@ public class FightingSlenerAI : MonoBehaviour
         m_col = GetComponent<Collider>();
         m_anim = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
+        m_audio = GetComponent<AudioSource>();
         m_rb.detectCollisions = true;
         m_player = GameObject.FindWithTag("Player").GetComponent<FightingPlayerController>();
 
@@ -84,7 +88,7 @@ public class FightingSlenerAI : MonoBehaviour
                 // the begining of the game - do nothing
                 case FightingStatus.None:
                     break;
-                    // player is not attacking - attack
+                // player is not attacking - attack
                 case FightingStatus.Idle:
                 case FightingStatus.UpperBlock:
                 case FightingStatus.MiddleBlock:
@@ -93,8 +97,8 @@ public class FightingSlenerAI : MonoBehaviour
                 // if player attacks too far - attack, otherwise - block
                 case FightingStatus.MiddleAttack:
                 case FightingStatus.LowerAttack:
-                    if ((m_player.PlayerStatus == FightingStatus.LowerAttack&&Vector3.Distance(transform.position, m_player.transform.position) <= m_lowerBlockDist)||
-                        m_player.PlayerStatus == FightingStatus.MiddleAttack&&(Vector3.Distance(transform.position, m_player.transform.position) <= m_middleBlockDist))
+                    if ((m_player.PlayerStatus == FightingStatus.LowerAttack && Vector3.Distance(transform.position, m_player.transform.position) <= m_lowerBlockDist) ||
+                        m_player.PlayerStatus == FightingStatus.MiddleAttack && (Vector3.Distance(transform.position, m_player.transform.position) <= m_middleBlockDist))
                     {
                         goto default;
                     }
@@ -107,7 +111,7 @@ public class FightingSlenerAI : MonoBehaviour
                     StartCoroutine(Block(0f, false, false));
                     m_anim.SetBool(m_HashWin, true);
                     break;
-                    //Randomly block player attack or move away
+                //Randomly block player attack or move away
                 default:
                     if (Random.value < 0.65f)
                         StartCoroutine(Block(Reaction,
@@ -254,6 +258,7 @@ public class FightingSlenerAI : MonoBehaviour
         }
         else
         {
+            m_audio.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);
@@ -261,7 +266,7 @@ public class FightingSlenerAI : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
-    {        
+    {
         // if the enemy collides with players's hands and foots and player is attacking now
         if (!m_dead && other.gameObject.CompareTag("attack")
            && m_player?.PlayerStatus == FightingStatus.MiddleAttack || m_player?.PlayerStatus == FightingStatus.LowerAttack)
