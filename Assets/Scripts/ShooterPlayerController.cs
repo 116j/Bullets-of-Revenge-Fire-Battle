@@ -55,12 +55,14 @@ public class ShooterPlayerController : MonoBehaviour
     bool m_isAiming = false;
     //if player is crouching
     bool m_isCrouched = false;
+    bool m_aimCrouched = false;
     //health points left
     float m_health = 10;
 
     //hashes for animator parameters
     readonly int m_HashCrouching = Animator.StringToHash("Crouching");
     readonly int m_HashAiming = Animator.StringToHash("Aiming");
+    readonly int m_HashAimCrouch = Animator.StringToHash("AimCrouch");
     readonly int m_HashDie = Animator.StringToHash("Die");
     readonly int m_HashHit = Animator.StringToHash("Hit");
     readonly int m_HashSpeed = Animator.StringToHash("Speed");
@@ -86,7 +88,7 @@ public class ShooterPlayerController : MonoBehaviour
     //upper border for the camera movement
     readonly float m_lowerCameraBorder = -25f;
     //height of the camera offset when the player crouches
-    readonly float m_crouchOffset = 0.35f;
+    readonly float m_crouchOffset = 0.4f;
     //max step per frame for gun rig movement
     readonly float m_gunRotationStep = 0.5f;
     readonly float m_vignetteMax = 0.64f;
@@ -123,7 +125,7 @@ public class ShooterPlayerController : MonoBehaviour
     //a point for hit
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 1f;
     //time to recover from a hit
-    float RecoverTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 3.5f;
+    float RecoverTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1.5f : 3f;
 
     // Start is called before the first frame update
     void Start()
@@ -137,8 +139,8 @@ public class ShooterPlayerController : MonoBehaviour
         m_damageVignette = (Vignette)m_damageVolume.components[0];
 
         m_healthBar.maxValue = m_health;
-        Reset();
-        //m_input.LockInput();
+        //Reset();
+        m_input.LockInput();
     }
 
     /// <summary>
@@ -153,8 +155,12 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (m_input.Fire)
             {
-                Fire();
-                m_input.SetFireDone();
+                if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit"||
+                    m_isCrouched&&!m_aimCrouched&& m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Aiming")
+                {
+                    Fire();
+                    m_input.SetFireDone();
+                }
             }
 
             Move();
@@ -299,6 +305,14 @@ public class ShooterPlayerController : MonoBehaviour
             m_input.DisableCrouch();
         }
 
+        if (m_aimCrouched && Vector3.Dot(transform.forward, Camera.main.transform.forward) >= 0)
+        {
+            m_aimCrouched = false;
+            SetCameraCrouchOffset(!m_isAiming);
+            ResetAim();
+            m_anim.SetBool(m_HashAimCrouch,m_aimCrouched);
+        }
+
         m_anim.SetFloat(m_HashHorizontal, m_input.Move.x);
         m_anim.SetFloat(m_HashVertical, m_input.Move.y);
         m_anim.SetBool(m_HashCrouching, m_isCrouched);
@@ -314,7 +328,7 @@ public class ShooterPlayerController : MonoBehaviour
         Vector3 offset = new(0f, m_aimCameraTarget.localPosition.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
         //changes collider according to crouch animations
         m_col.center = new(m_col.center.x, m_col.center.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
-        m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.05f);
+        m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.1f);
         m_aimCameraTarget.localPosition = m_moveCameraTarget.localPosition = offset;
     }
 
@@ -373,21 +387,24 @@ public class ShooterPlayerController : MonoBehaviour
         {
             m_anim.SetBool(m_HashAiming, isAiming);
             m_aimImage.SetActive(isAiming);
-            //when crouch and aiming, stand up
-            if (m_isCrouched)
-            {
-                SetCameraCrouchOffset(!isAiming);
-            }
             if (isAiming)
             {
+                m_aimCrouched = m_isCrouched && Vector3.Dot(transform.forward, Camera.main.transform.forward) < 0;
                 ResetAim();
                 m_aimCamera.Priority = 11;
             }
             else
             {
+                m_aimCrouched = false;
                 ResetAim();
                 m_aimCamera.Priority = 9;
             }
+            //when crouch and aiming, stand up
+            if (m_isCrouched&&!m_aimCrouched)
+            {
+                SetCameraCrouchOffset(!isAiming);
+            }
+            m_anim.SetBool(m_HashAimCrouch, m_aimCrouched);
             m_isAiming = isAiming;
         }
     }
@@ -408,16 +425,14 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Fire()
     {
-        if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit")
+
+        if (m_isAiming)
         {
-            if (m_isAiming)
-            {
-                m_gun.Fire(m_aimTarget);
-            }
-            else
-            {
-                m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
-            }
+            m_gun.Fire(m_aimTarget);
+        }
+        else
+        {
+            m_gun.Fire(m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward);
         }
     }
     /// <summary>
@@ -479,7 +494,7 @@ public class ShooterPlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        m_input.LockInput();     
+        m_input.LockInput();
         m_anim.SetFloat(m_HashSpeed, 0f);
         m_damageVignette.intensity.value = 0f;
         GetComponent<RigBuilder>().enabled = false;

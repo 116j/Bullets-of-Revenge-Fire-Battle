@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: de38026a41105c9468f8fb6093ae49f9
+guid: 4a8cc159ea88bf54cb5262b653ca56cd
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Black Ops One
+  - Stencil
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

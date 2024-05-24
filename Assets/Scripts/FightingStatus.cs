@@ -6,5 +6,6 @@ public enum FightingStatus
     UpperBlock,
     LowerAttack,
     MiddleAttack,
+    Hit,
     Die
 }

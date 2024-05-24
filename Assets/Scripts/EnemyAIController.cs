@@ -106,8 +106,8 @@ public class EnemyAIController : MonoBehaviour
     float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
     //how many point decrease from health when the enemy is hit
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1f : 0.5f;
-    float ShootSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 0.75f;
-    float ReloadSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.25f : 0.18f;
+    float ShootSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f: 0.75f;
+    float ReloadSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.2f: 0.25f;
     public bool IsDead => m_dead;
 
     // Start is called before the first frame update
@@ -127,7 +127,7 @@ public class EnemyAIController : MonoBehaviour
         m_shootSound = m_barrelLocation.GetComponent<AudioSource>();
         m_magazineStore = RifleCapacity;
         m_currentAction = Pursue;
-        // m_dead = true;
+         m_dead = true;
         ResetAim();
     }
 
@@ -266,32 +266,25 @@ public class EnemyAIController : MonoBehaviour
 
         if (rayhits.Length > 0)
         {
-            float distZ = 0;
+            float CoverPlayerDistZ = 0;
             foreach (var rayhit in rayhits)
             {
                 //distance from a cover to the enemy
-                distZ = Mathf.Abs(m_target.position.z - rayhit.collider.gameObject.transform.position.z);
+                CoverPlayerDistZ = Mathf.Abs(m_target.position.z - rayhit.collider.gameObject.transform.position.z);
                 if (rayhit.collider.gameObject != m_currentCover
-                    && distZ < m_shootDist
-                    && distZ > m_safeDist)
+                    && Mathf.Abs(m_target.position.z - transform.position.z)> Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z)
+                    && CoverPlayerDistZ < m_shootDist
+                    && CoverPlayerDistZ > m_safeDist)
                 // && distZ > Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z))
                 {
                     m_currentCover = rayhit.collider.gameObject;
-                    if (Vector3.Distance(transform.position, m_currentCover.transform.position) > 5f)
-                    {
-                        m_agent.speed = m_runSpeed;
-                    }
-                    else
-                    {
-                        m_agent.speed = m_walkSpeed;
-                    }
                     EnableObstacle(false);
                     m_currentAction = ChooseCoverSpot;
                     return;
                 }
             }
             //if there's no free cover in shootDist
-            if (distZ > m_shootDist && !m_noFree)
+            if (CoverPlayerDistZ > m_shootDist && !m_noFree)
             {
                 m_noFree = true;
                 return;

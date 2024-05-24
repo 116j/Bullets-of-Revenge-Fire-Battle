@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -23,6 +22,12 @@ public enum GameType
 
 public class UIController : MonoBehaviour
 {
+    [Header("Buttons")]
+    [SerializeField]
+    GameObject m_startMenuButtons;
+    [SerializeField]
+    GameObject m_settingButtons;
+
     [Header("Menu Buttons")]
     [SerializeField]
     Button m_gameButton;
@@ -30,6 +35,8 @@ public class UIController : MonoBehaviour
     Button m_audioButton;
     [SerializeField]
     Button m_controlsButton;
+    [SerializeField]
+    Text m_header;
 
     [Header("Layouts")]
     [SerializeField]
@@ -46,6 +53,8 @@ public class UIController : MonoBehaviour
     PlayerInput m_input;
     [SerializeField]
     AudioMixer m_mixer;
+    [SerializeField]
+    GameObject m_cutscenes;
 
     [Header("Game Layer Components")]
     [SerializeField]
@@ -74,14 +83,34 @@ public class UIController : MonoBehaviour
     [Header("Die Layout")]
     [SerializeField]
     GameObject m_dieLayout;
-    [SerializeField]
-    Text m_restartPressText;
-    [SerializeField]
-    AudioClip m_dieAudio;
 
-    [Header("")]
+    [Header("Subtitles")]
     [SerializeField]
     Text[] m_subtitleText;
+
+    [Header("Transcription")]
+    [SerializeField]
+    Image m_gameName;
+    [SerializeField]
+    Sprite m_gameNameRus;
+    [SerializeField]
+    Sprite m_gameNameEng;
+    [SerializeField]
+    PlayableAsset[] m_timelinesRus;
+    [SerializeField]
+    PlayableAsset[] m_timelinesEng;
+    [SerializeField]
+    AudioClip m_startAudioEng;
+    [SerializeField]
+    AudioClip m_startAudioRus;
+    [SerializeField]
+    AudioClip m_winAudioEng;
+    [SerializeField]
+    AudioClip m_winAudioRus;
+    [SerializeField]
+    AudioClip m_dieAudioEng;
+    [SerializeField]
+    AudioClip m_dieAudioRus;
 
     [Header("Fighting")]
     [SerializeField]
@@ -92,10 +121,6 @@ public class UIController : MonoBehaviour
     Text m_winText;
     [SerializeField]
     AudioClip m_fightingMusic;
-    [SerializeField]
-    AudioClip m_startAudio;
-    [SerializeField]
-    AudioClip m_winAudio;
     [SerializeField]
     CommandReceiver m_finalCutscene;
 
@@ -116,6 +141,8 @@ public class UIController : MonoBehaviour
 
     Color m_screenFadeColor;
     Color m_textFadeColor;
+    Text m_restartText;
+    Text m_dieText;
     bool m_darkenScreen = false;
     bool m_startFighting = false;
     bool m_startShooter = false;
@@ -123,12 +150,73 @@ public class UIController : MonoBehaviour
     bool m_restart = false;
     AudioSource m_gameVoice;
 
-    readonly string[] m_fightingCommands = { "Upper Attack", "Lower Attack", "Upper Block", "Middle Block" };
-    readonly string[] m_shooterCommands = { "Aim", "Fire", "Run", "Crouch" };
-    readonly string[][] m_subtitles = new string[2][]
+    readonly string[][] m_fightingCommands = {
+    new string[]
     {
+        "Upper Attack", "Lower Attack", "Upper Block", "Middle Block"
+    },
+    new string[]
+    {
+        "Верхняя атака", "Нижняя атака", "Верхний блок", "Нижний блок"
+    }
+    };
+    readonly string[][] m_shooterCommands = {
+    new string[]
+    {
+        "Aim", "Fire", "Run", "Crouch"
+    },
+    new string[]
+    {
+        "Целиться", " Стрелять", "Бежать", "Присесть"
+    }
+    };
+    readonly string[][] m_startButtonsText =
+{
+        new string[]
+        {
+            "Strat","Settings","Quit"
+        },
+        new string[]
+        {
+            "Начать","Настройки","Выйти"
+        }
+    };
+    readonly string[][] m_settingsButtonsText =
+    {
+        new string[]
+        {
+            "Game","Audio","Controls","Quit Game"
+        },
+        new string[]
+        {
+            "Игра","Звук","Управление","Выйти из игры"
+        }
+    };
+    readonly string[][] m_gameplayElementsText =
+    {
+        new string[]
+        {
+            "Difficulty","Normal","Hard","Camera Turn Sensativity", "Quality","Low","Medium","High","Invert X","Invert Y"
+        },
+        new string[]
+        {
+            "Сложность", "Нормально","Сложно","Поворот камеры","Качество","Низкое","Среднее","Высокое","Инверсия X","Инверсия Y"
+        }
+    };
+    readonly string[][] m_audioElementsText =
+    {
+        new string[]
+        {
+            "Game","Music","Effects","Language","Suntitles"
+        },
+        new string[]
+        {
+            "Игра","Музыка","Эффекты","Язык","Субтитры"
+        }
+    };
+    readonly string[][] m_subtitles = {
         new string[]{
-            "I will avnge all the pain that i had to experience!",
+            "I will avange all the pain that i had to experience!",
             "Long time no see, Pudge!",
             "You killed my famaly and ate my children, bastard!\n\r I will avenge them and cleanse the world of such evil as you, Slenderman!",
         "Let's see who wins!",
@@ -141,6 +229,7 @@ public class UIController : MonoBehaviour
         "Я отомстил за свою семью и избавил мир ото зла! Теперь я могу отправится к ним!"}
     };
 
+
     private void Awake()
     {
         if (m_instance == null)
@@ -152,14 +241,25 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         m_settings = transform.GetChild(2).gameObject;
+        m_restartText = m_dieLayout.transform.GetChild(1).GetComponent<Text>();
+        m_dieText = m_dieLayout.transform.GetChild(0).GetComponent<Text>();
         m_gameVoice = GetComponent<AudioSource>();
         m_screenFadeColor = m_blackScreen.color;
         m_screenFadeColor.a = 1f;
         m_textFadeColor = m_startText.color;
         m_textFadeColor.a = 0f;
+
+        if (Application.systemLanguage == SystemLanguage.Russian)
+        {
+            ChangeLanguage(1);
+        }
+        else
+        {
+            ChangeLanguage(0);
+        }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (m_darkenScreen)
         {
@@ -169,11 +269,11 @@ public class UIController : MonoBehaviour
                 m_blackScreen.color = m_screenFadeColor;
 
                 m_darkenScreen = false;
-                if (m_restart&&CurrentGame == GameType.Fighting)
+                if (m_restart && CurrentGame == GameType.Fighting)
                 {
                     StartFighting();
                 }
-                else if(m_restart && CurrentGame == GameType.Shooter)
+                else if (m_restart && CurrentGame == GameType.Shooter)
                 {
                     StartShooter();
                 }
@@ -186,16 +286,16 @@ public class UIController : MonoBehaviour
             }
         }
 
-        if ((m_startFighting|| m_startShooter) && m_blackScreen.isActiveAndEnabled)
+        if ((m_startFighting || m_startShooter) && m_blackScreen.isActiveAndEnabled)
         {
             m_blackScreen.color = Color.Lerp(m_blackScreen.color, m_screenFadeColor, Time.deltaTime * m_fadeTime);
-            if (m_blackScreen.color.a < 0.01f)
+            if (m_blackScreen.color.a < 0.1f)
             {
                 m_blackScreen.gameObject.SetActive(false);
                 m_screenFadeColor.a = 1f;
-                if(m_startFighting)
-                m_gameVoice.PlayOneShot(m_startAudio);
-                else if(m_startShooter)
+                if (m_startFighting)
+                    m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_startAudioEng : m_startAudioRus);
+                else if (m_startShooter)
                 {
                     m_startShooter = false;
                     m_input.LockInput();
@@ -206,7 +306,7 @@ public class UIController : MonoBehaviour
         if (m_startFighting && !m_blackScreen.isActiveAndEnabled && m_startText.isActiveAndEnabled)
         {
             m_startText.color = Color.Lerp(m_startText.color, m_textFadeColor, Time.deltaTime * m_fadeTime);
-            if (m_startText.color.a < 0.01f)
+            if (m_startText.color.a < 0.1f)
             {
                 m_startText.gameObject.SetActive(false);
                 GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().StartGame();
@@ -217,13 +317,22 @@ public class UIController : MonoBehaviour
 
     public void StartFighting()
     {
-        m_startFighting = true;
+        if (m_restart)
+        {
+            GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
+            GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
+        }
+        else
+        {
+            EnemySpawner.Instance.DestroyAll();
+        }
         m_startText.gameObject.SetActive(true);
         Color textColor = m_startText.color;
         textColor.a = 1;
         m_startText.color = textColor;
         m_screenFadeColor.a = 0f;
         m_restart = false;
+        m_startFighting = true;
         Camera.main.GetComponent<AudioSource>().clip = m_fightingMusic;
         Camera.main.GetComponent<AudioSource>().Play();
     }
@@ -247,7 +356,7 @@ public class UIController : MonoBehaviour
     public IEnumerator Win()
     {
         m_winText.gameObject.SetActive(true);
-        m_gameVoice.PlayOneShot(m_winAudio);
+        m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_winAudioEng : m_winAudioRus);
         yield return new WaitForSeconds(m_fadeTime);
         DarkenScreen();
     }
@@ -258,7 +367,8 @@ public class UIController : MonoBehaviour
         Time.timeScale += m_isActive ? -1 : 1;
         m_settings.SetActive(m_isActive);
         m_startLayout.SetActive(!m_isActive && !m_input.GameStrted);
-        SetGameLayout();
+        if (m_isActive)
+            SetGameLayout();
         return m_isActive;
     }
 
@@ -286,6 +396,46 @@ public class UIController : MonoBehaviour
         m_langIndex = index;
         m_subtitlesOn = !m_subtitlesOn;
         TurnSubtitles();
+        int i = 0;
+        foreach (var button in m_settingButtons.GetComponentsInChildren<Text>())
+        {
+            button.text = m_settingsButtonsText[index][i];
+            i++;
+        }
+
+        i = 0;
+        foreach (var button in m_startMenuButtons.GetComponentsInChildren<Text>())
+        {
+            button.text = m_startButtonsText[index][i];
+            i++;
+        }
+        int j = 0;
+
+        for (i = 0; i < m_gameLayout.transform.childCount; i++)
+        {
+            foreach (var button in m_gameLayout.transform.GetChild(i).GetComponentsInChildren<Text>())
+            {
+                button.text = m_gameplayElementsText[index][j];
+                j++;
+            }
+        }
+
+        for (i = 0; i < m_audioLayout.transform.childCount; i++)
+        {
+            m_audioLayout.transform.GetChild(i).GetComponentInChildren<Text>().text = m_audioElementsText[index][i];
+        }
+
+        m_header.text = index == 0 ? "SETTINGS" : "НАСТРОЙКИ";
+        m_gameName.sprite = index == 0 ? m_gameNameEng : m_gameNameRus;
+        m_startText.text = index == 0 ? "Start\n\rfighting" : "Начинайте\n\rбой";
+        m_winText.text = index == 0 ? "Player\n\rwins!" : "Игрок\n\rпобедил!";
+        m_dieText.text = index == 0 ? "YOU\n\rDIED" : "ВЫ\n\rУМЕРЛИ";
+
+        PlayableAsset[] cutscenes = index == 0 ? m_timelinesEng : m_timelinesRus;
+        for (i = 0; i < cutscenes.Length; i++)
+        {
+            m_cutscenes.transform.GetChild(i).GetComponent<PlayableDirector>().playableAsset = cutscenes[i];
+        }
     }
 
     public void TurnSubtitles()
@@ -387,7 +537,7 @@ public class UIController : MonoBehaviour
             {
                 SetHardDifficulty();
             }
-                m_normal.Select();
+            m_normal.Select();
 
             switch (QualitySettings.GetQualityLevel())
             {
@@ -413,7 +563,7 @@ public class UIController : MonoBehaviour
 
             SetLayouts();
 
-                m_gameVolumeSlider.Select();
+            m_gameVolumeSlider.Select();
         }
     }
 
@@ -436,10 +586,11 @@ public class UIController : MonoBehaviour
     {
         for (int i = 0; i < m_commands.Length; i++)
         {
-            m_commands[i].text = CurrentGame == GameType.Fighting ? m_fightingCommands[i] : m_shooterCommands[i];
+            m_commands[i].text = CurrentGame == GameType.Fighting ? m_fightingCommands[m_langIndex][i] : m_shooterCommands[m_langIndex][i];
+            string commandName = CurrentGame == GameType.Fighting ? m_fightingCommands[0][i] : m_shooterCommands[0][i];
             var rebind = m_buttons[i].GetComponentInParent<RebindActionUI>();
-            rebind.actionReference = InputActionReference.Create(m_input.GetAction(m_commands[i].text));
-            rebind.bindingId = m_input.GetBindingId(m_commands[i].text);
+            rebind.actionReference = InputActionReference.Create(m_input.GetAction(commandName));
+            rebind.bindingId = m_input.GetBindingId(commandName);
         }
     }
 
@@ -483,17 +634,17 @@ public class UIController : MonoBehaviour
         m_dieLayout.SetActive(set);
         m_restart = true;
         if (set)
-            m_gameVoice.PlayOneShot(m_dieAudio);
+            m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_dieAudioEng : m_dieAudioRus);
 
         if (set)
         {
             if (m_input.GetCurrentControlScheme() == "Gamepad")
             {
-                m_restartPressText.text = "Press A to restart";
+                m_restartText.text = m_langIndex == 0 ? "Press A to restart" : "Нажмите А, чтобы начать заново";
             }
             else
             {
-                m_restartPressText.text = "Press ENTER to restart";
+                m_restartText.text = m_langIndex == 0 ? "Press ENTER to restart" : "Нажмите ENTER, чтобы начать заново";
             }
         }
     }

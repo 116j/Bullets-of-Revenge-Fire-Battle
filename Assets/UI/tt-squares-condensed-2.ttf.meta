@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: de38026a41105c9468f8fb6093ae49f9
+guid: e9d0b4508fe13c745a64973afd5353dd
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Black Ops One
+  - TT Squares Condensed
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

@@ -208,12 +208,6 @@ public class PlayerInput : MonoBehaviour
             UIController.Instance.DarkenScreen();
             m_playerDied = false;
             UIController.Instance.SetDieLayout(m_playerDied);
-
-            if (UIController.Instance.CurrentGame == GameType.Fighting)
-            {
-                GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
-                GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
-            }
         }
     }
 

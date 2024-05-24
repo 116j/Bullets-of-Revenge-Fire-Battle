@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: de38026a41105c9468f8fb6093ae49f9
+guid: 8769c8adc4028404a8c77d050abad419
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Black Ops One
+  - Capture it
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

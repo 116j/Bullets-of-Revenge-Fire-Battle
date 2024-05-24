@@ -92,6 +92,7 @@ public class FightingSlenerAI : MonoBehaviour
                 case FightingStatus.Idle:
                 case FightingStatus.UpperBlock:
                 case FightingStatus.MiddleBlock:
+                case FightingStatus.Hit:
                     Attack(m_player.PlayerStatus == FightingStatus.UpperBlock);
                     break;
                 // if player attacks too far - attack, otherwise - block
@@ -262,14 +263,23 @@ public class FightingSlenerAI : MonoBehaviour
             m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);
+            if (Random.value < 0.6f)
+            {
+                StartCoroutine(Block(Reaction, hitPart==2,hitPart==1));
+            }
+            else
+            {
+                Attack(m_player.PlayerStatus == FightingStatus.UpperBlock);
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         // if the enemy collides with players's hands and foots and player is attacking now
-        if (!m_dead && other.gameObject.CompareTag("attack")
-           && m_player?.PlayerStatus == FightingStatus.MiddleAttack || m_player?.PlayerStatus == FightingStatus.LowerAttack)
+        
+        if (!m_dead && other.gameObject.CompareTag("attack"))
+          // && m_player?.PlayerStatus == FightingStatus.MiddleAttack || m_player?.PlayerStatus == FightingStatus.LowerAttack)
         {
             Vector3 point = other.ClosestPoint(transform.position);
             float part = m_col.bounds.size.y / 3f;

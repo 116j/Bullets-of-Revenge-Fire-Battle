@@ -2333,13 +2333,17 @@ PrefabInstance:
       value: 0.606
       objectReference: {fileID: 0}
     - target: {fileID: 1655271537288226051, guid: 6a6b355deaf6ca24ebf16658d1fdd117, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 3969fb486609734469e1935de569537b, type: 3}
+    - target: {fileID: 1655271537288226051, guid: 6a6b355deaf6ca24ebf16658d1fdd117, type: 3}
       propertyPath: MaxDistance
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1655271537288226051, guid: 6a6b355deaf6ca24ebf16658d1fdd117, type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: e03ad7113ade04346a590b345f2f9977, type: 3}
+      objectReference: {fileID: 8300000, guid: 3969fb486609734469e1935de569537b, type: 3}
     - target: {fileID: 1655271537288226051, guid: 6a6b355deaf6ca24ebf16658d1fdd117, type: 3}
       propertyPath: OutputAudioMixerGroup
       value: 
