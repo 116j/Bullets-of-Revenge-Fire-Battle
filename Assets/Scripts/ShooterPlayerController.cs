@@ -91,8 +91,8 @@ public class ShooterPlayerController : MonoBehaviour
     readonly float m_crouchOffset = 0.4f;
     //max step per frame for gun rig movement
     readonly float m_gunRotationStep = 0.5f;
-    readonly float m_vignetteMax = 0.64f;
-    readonly float m_vignetteMin = 0.46f;
+    readonly float m_vignetteMax = 0.74f;
+    readonly float m_vignetteMin = 0.56f;
 
     //start gun rig rotations
     Quaternion m_baseTR;
@@ -139,8 +139,8 @@ public class ShooterPlayerController : MonoBehaviour
         m_damageVignette = (Vignette)m_damageVolume.components[0];
 
         m_healthBar.maxValue = m_health;
-        //Reset();
-        m_input.LockInput();
+        Reset();
+        // m_input.LockInput();
     }
 
     /// <summary>
@@ -155,8 +155,8 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (m_input.Fire)
             {
-                if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit"||
-                    m_isCrouched&&!m_aimCrouched&& m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Aiming")
+                if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit" ||
+                    m_isCrouched && !m_aimCrouched && m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Aiming")
                 {
                     Fire();
                     m_input.SetFireDone();
@@ -241,6 +241,10 @@ public class ShooterPlayerController : MonoBehaviour
             //move gun rigs
             m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_RPitch, m_TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_cameraRotationSpeed);
             m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_LPitch, m_TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_cameraRotationSpeed);
+            if (Vector3.Angle(m_gun.BarrelLocation.forward, (m_aimTarget - m_gun.BarrelLocation.position).normalized) >= 15f)
+            {
+                ResetAim();
+            }
         }
     }
     /// <summary>
@@ -310,7 +314,7 @@ public class ShooterPlayerController : MonoBehaviour
             m_aimCrouched = false;
             SetCameraCrouchOffset(!m_isAiming);
             ResetAim();
-            m_anim.SetBool(m_HashAimCrouch,m_aimCrouched);
+            m_anim.SetBool(m_HashAimCrouch, m_aimCrouched);
         }
 
         m_anim.SetFloat(m_HashHorizontal, m_input.Move.x);
@@ -368,11 +372,11 @@ public class ShooterPlayerController : MonoBehaviour
             {
                 var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
                 // if the nearest enemy is not close, move aiming camera
-                if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 8f)
-                {
-                    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                }
+                //if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 5f)
+                //{
+                //    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                //    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                //}
                 m_aimTarget = gunHitInfo.point;
             }
         }
@@ -400,7 +404,7 @@ public class ShooterPlayerController : MonoBehaviour
                 m_aimCamera.Priority = 9;
             }
             //when crouch and aiming, stand up
-            if (m_isCrouched&&!m_aimCrouched)
+            if (m_isCrouched && !m_aimCrouched)
             {
                 SetCameraCrouchOffset(!isAiming);
             }
@@ -492,7 +496,7 @@ public class ShooterPlayerController : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    public void SwitchController()
     {
         m_input.LockInput();
         m_anim.SetFloat(m_HashSpeed, 0f);

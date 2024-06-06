@@ -49,7 +49,7 @@ public class FightingPlayerController : MonoBehaviour
     readonly float m_speed = 3f;
 
     public FightingStatus PlayerStatus => m_status;
-    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.4f : 8f;
+    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.3f : 0.7f;
 
     // Start is called before the first frame update
     void Start()
@@ -148,14 +148,14 @@ public class FightingPlayerController : MonoBehaviour
     {
         m_health -= HitPoint;
         m_healthBar.value = m_health; ;
-        if (m_health <= 0)
+        if (m_health <= 0&&!m_win)
         {
             m_dead = true;
             m_healthBar.value = 0;
             m_input.Die();
             m_status = FightingStatus.Die;
         }
-        else
+        else if(m_health > 0)
         {
             m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);

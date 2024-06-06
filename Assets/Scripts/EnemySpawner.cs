@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class EnemySpawner : MonoBehaviour
@@ -21,6 +22,7 @@ public class EnemySpawner : MonoBehaviour
 
     static EnemySpawner m_instance;
     public static EnemySpawner Instance => m_instance;
+    Transform m_location;
 
     private void Awake()
     {
@@ -28,26 +30,29 @@ public class EnemySpawner : MonoBehaviour
         {
             m_instance = this;
         }
+        m_location = transform;
 
         m_enemies = new List<GameObject>();
     }
 
-    public void SpawnEnemies(Vector3 location)
+    public void SpawnEnemies(Vector3 position, Quaternion rotation)
     {
-        StartCoroutine(nameof(CreateEnemies), location);
+        m_location.position = position;
+        m_location.rotation = rotation;
+        StartCoroutine(nameof(CreateEnemies));
     }
 
-    IEnumerator CreateEnemies(Vector3 location)
+    IEnumerator CreateEnemies()
     {
         for (int i = 0; i < m_amountToSpawn; i++)
         {
-            GameObject enemy = Instantiate(m_enemyPerfab, location, m_enemyPerfab.transform.rotation);
+            GameObject enemy = Instantiate(m_enemyPerfab, m_location.position, m_location.rotation);
             enemy.name = m_enemyPerfab.name + i;
 
             int materialNum = Random.Range(0, 2);
             for (int j = 0; j < 4; j++)
             {
-                if(!enemy.transform.GetChild(j).TryGetComponent<Renderer>(out var render))
+                if (!enemy.transform.GetChild(j).TryGetComponent<Renderer>(out var render))
                 {
                     render = enemy.transform.GetChild(j).GetComponentInChildren<Renderer>();
                 }

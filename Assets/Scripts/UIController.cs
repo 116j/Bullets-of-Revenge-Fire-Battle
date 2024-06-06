@@ -73,6 +73,8 @@ public class UIController : MonoBehaviour
     Slider m_gameVolumeSlider;
     [SerializeField]
     Text m_subtitlesButtonText;
+    [SerializeField]
+    Dropdown m_language;
 
     [Header("Controls Layer Components")]
     [SerializeField]
@@ -216,7 +218,7 @@ public class UIController : MonoBehaviour
     };
     readonly string[][] m_subtitles = {
         new string[]{
-            "I will avange all the pain that i had to experience!",
+            "I will avenge all the pain that i had to experience!",
             "Long time no see, Pudge!",
             "You killed my famaly and ate my children, bastard!\n\r I will avenge them and cleanse the world of such evil as you, Slenderman!",
         "Let's see who wins!",
@@ -251,11 +253,11 @@ public class UIController : MonoBehaviour
 
         if (Application.systemLanguage == SystemLanguage.Russian)
         {
-            ChangeLanguage(1);
+            m_language.value = 1;
         }
         else
         {
-            ChangeLanguage(0);
+            m_language.value = 0;
         }
     }
 
@@ -281,7 +283,7 @@ public class UIController : MonoBehaviour
                 {
                     Camera.main.GetComponent<AudioSource>().Stop();
                     m_winText.gameObject.SetActive(false);
-                    m_finalCutscene.Receive(Vector3.zero);
+                    m_finalCutscene.Receive(transform);
                 }
             }
         }

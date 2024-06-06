@@ -127,7 +127,7 @@ public class EnemyAIController : MonoBehaviour
         m_shootSound = m_barrelLocation.GetComponent<AudioSource>();
         m_magazineStore = RifleCapacity;
         m_currentAction = Pursue;
-         m_dead = true;
+        // m_dead = true;
         ResetAim();
     }
 

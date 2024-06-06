@@ -69,6 +69,14 @@ public class PlayerInput : MonoBehaviour
         m_input.uiInputModule.cancel.action.performed += UIController.Instance.CancelLayout;
     }
 
+    private void Update()
+    {
+        if (!m_pause && m_gameStarted)
+        {
+            Cursor.visible = false;
+        }
+    }
+
     private void OnEnable()
     {
         if (m_input != null)

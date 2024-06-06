@@ -34,6 +34,7 @@ public class FightingSlenerAI : MonoBehaviour
     readonly float m_upperAttack2Dist = 1.23f;
     readonly float m_middleBlockDist = 1.6f;
     readonly float m_lowerBlockDist = 1.72f;
+    readonly float m_runawayDist = 0.85f;
     readonly int m_attackCount = 2;
 
     //hashes for animator parameters
@@ -49,7 +50,7 @@ public class FightingSlenerAI : MonoBehaviour
     readonly int m_HashDie = Animator.StringToHash("Die");
     readonly int m_HashWin = Animator.StringToHash("Win");
 
-    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.8f : 0.4f;
+    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.7f : 0.3f;
     //enemy block reaction
     float Reaction => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 3f : 1.5f;
     public bool Dead => m_dead;
@@ -82,48 +83,55 @@ public class FightingSlenerAI : MonoBehaviour
                 if (m_runAway <= 0)
                     m_move = 0;
             }
-            // does actions based on player status
-            switch (m_player.PlayerStatus)
+            if (Vector3.Distance(transform.position, m_player.transform.position) <= m_runawayDist)
             {
-                // the begining of the game - do nothing
-                case FightingStatus.None:
-                    break;
-                // player is not attacking - attack
-                case FightingStatus.Idle:
-                case FightingStatus.UpperBlock:
-                case FightingStatus.MiddleBlock:
-                case FightingStatus.Hit:
-                    Attack(m_player.PlayerStatus == FightingStatus.UpperBlock);
-                    break;
-                // if player attacks too far - attack, otherwise - block
-                case FightingStatus.MiddleAttack:
-                case FightingStatus.LowerAttack:
-                    if ((m_player.PlayerStatus == FightingStatus.LowerAttack && Vector3.Distance(transform.position, m_player.transform.position) <= m_lowerBlockDist) ||
-                        m_player.PlayerStatus == FightingStatus.MiddleAttack && (Vector3.Distance(transform.position, m_player.transform.position) <= m_middleBlockDist))
-                    {
-                        goto default;
-                    }
-                    else
-                    {
-                        goto case FightingStatus.Idle;
-                    }
-                case FightingStatus.Die:
-                    m_move = 0;
-                    StartCoroutine(Block(0f, false, false));
-                    m_anim.SetBool(m_HashWin, true);
-                    break;
-                //Randomly block player attack or move away
-                default:
-                    if (Random.value < 0.65f)
-                        StartCoroutine(Block(Reaction,
-                            m_player.PlayerStatus == FightingStatus.LowerAttack, m_player.PlayerStatus == FightingStatus.MiddleAttack));
-                    else
-                    {
-                        m_move = -1;
-                        m_runAway = Reaction;
-                    }
-                    break;
+                m_runAway = Random.Range(0.1f, Reaction);
+                m_move = -1;
             }
+            else
+                // does actions based on player status
+                switch (m_player.PlayerStatus)
+                {
+                    // the begining of the game - do nothing
+                    case FightingStatus.None:
+                        break;
+                    // player is not attacking - attack
+                    case FightingStatus.Idle:
+                    case FightingStatus.UpperBlock:
+                    case FightingStatus.MiddleBlock:
+                    case FightingStatus.Hit:
+                        Attack(m_player.PlayerStatus == FightingStatus.UpperBlock);
+                        break;
+                    // if player attacks too far - attack, otherwise - block
+                    case FightingStatus.MiddleAttack:
+                    case FightingStatus.LowerAttack:
+                        if ((m_player.PlayerStatus == FightingStatus.LowerAttack && Vector3.Distance(transform.position, m_player.transform.position) <= m_lowerBlockDist) ||
+                            m_player.PlayerStatus == FightingStatus.MiddleAttack && (Vector3.Distance(transform.position, m_player.transform.position) <= m_middleBlockDist))
+                        {
+                            goto default;
+                        }
+                        else
+                        {
+                            goto case FightingStatus.Idle;
+                        }
+                    case FightingStatus.Die:
+                        m_move = 0;
+                        StartCoroutine(Block(0f, false, false));
+                        m_anim.SetBool(m_HashWin, true);
+                        break;
+                    //Randomly block player attack or move away
+                    default:
+                        if (Random.value < 0.65f)
+                            StartCoroutine(Block(Reaction,
+                                m_player.PlayerStatus == FightingStatus.LowerAttack, m_player.PlayerStatus == FightingStatus.MiddleAttack));
+                        else
+                        {
+                            m_move = -1;
+                            m_runAway = Reaction;
+                        }
+                        break;
+                }
+
 
             m_anim.SetFloat(m_HashHorizontal, m_move);
         }
@@ -162,6 +170,7 @@ public class FightingSlenerAI : MonoBehaviour
                     }
                     else if (!m_anim.IsInTransition(0))
                     {
+                        m_runAway = Random.Range(0.1f, Reaction);
                         m_move = -1;
                     }
                 }
@@ -265,7 +274,7 @@ public class FightingSlenerAI : MonoBehaviour
             m_anim.SetTrigger(m_HashHit);
             if (Random.value < 0.6f)
             {
-                StartCoroutine(Block(Reaction, hitPart==2,hitPart==1));
+                StartCoroutine(Block(Reaction, hitPart == 2, hitPart == 1));
             }
             else
             {
@@ -277,9 +286,9 @@ public class FightingSlenerAI : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // if the enemy collides with players's hands and foots and player is attacking now
-        
+
         if (!m_dead && other.gameObject.CompareTag("attack"))
-          // && m_player?.PlayerStatus == FightingStatus.MiddleAttack || m_player?.PlayerStatus == FightingStatus.LowerAttack)
+        // && m_player?.PlayerStatus == FightingStatus.MiddleAttack || m_player?.PlayerStatus == FightingStatus.LowerAttack)
         {
             Vector3 point = other.ClosestPoint(transform.position);
             float part = m_col.bounds.size.y / 3f;
@@ -300,6 +309,7 @@ public class FightingSlenerAI : MonoBehaviour
             m_bounds = Vector3.Dot(transform.forward, (other.transform.position - transform.position).normalized) < 0 && m_move < 0
                    || Vector3.Dot(transform.forward, (other.transform.position - transform.position).normalized) > 0 && m_move > 0;
         }
+
     }
     /// <summary>
     /// Reset enemy's values, when the player is dead

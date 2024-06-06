@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Diagnostics;
+using System.Globalization;
 
 public class LipSyncer3D : LipSyncer
 {
@@ -96,14 +97,17 @@ public class LipSyncer3D : LipSyncer
             {
                 string[] param = s.Split('\t');
                 currentIndex = LipSyncConstants.MouthShape.FindIndex(param[1].Contains);
+                CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                ci.NumberFormat.CurrencyDecimalSeparator = ".";
+                float value = float.Parse(param[0],NumberStyles.Any,ci);
                 if (!s.Trim().Equals("X"))
                 {
-                    mouthKeyframe[currentIndex].Add(new Keyframe(float.Parse(param[0])  + AVSync - .125f, 0f));
-                    mouthKeyframe[currentIndex].Add(new Keyframe(float.Parse(param[0]) + AVSync, mouthIntensity));
+                    mouthKeyframe[currentIndex].Add(new Keyframe(value + AVSync - .125f, 0f));
+                    mouthKeyframe[currentIndex].Add(new Keyframe(value + AVSync, mouthIntensity));
                 }
                 if (lastIndex != -1)
                 {
-                    mouthKeyframe[lastIndex].Add(new Keyframe(float.Parse(param[0]) + AVSync, 0f));
+                    mouthKeyframe[lastIndex].Add(new Keyframe(value + AVSync, 0f));
                 }
                 lastIndex = currentIndex;
             }
