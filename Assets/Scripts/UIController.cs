@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -116,6 +117,8 @@ public class UIController : MonoBehaviour
 
     [Header("Fighting")]
     [SerializeField]
+    CinemachineVirtualCamera m_fightingCamera;
+    [SerializeField]
     Image m_blackScreen;
     [SerializeField]
     Text m_startText;
@@ -151,6 +154,7 @@ public class UIController : MonoBehaviour
     readonly float m_fadeTime = 1.5f;
     bool m_restart = false;
     AudioSource m_gameVoice;
+    CinemachineFramingTransposer m_transposer;
 
     readonly string[][] m_fightingCommands = {
     new string[]
@@ -243,6 +247,7 @@ public class UIController : MonoBehaviour
     private void Start()
     {
         m_settings = transform.GetChild(2).gameObject;
+        m_transposer = m_fightingCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         m_restartText = m_dieLayout.transform.GetChild(1).GetComponent<Text>();
         m_dieText = m_dieLayout.transform.GetChild(0).GetComponent<Text>();
         m_gameVoice = GetComponent<AudioSource>();
@@ -296,7 +301,7 @@ public class UIController : MonoBehaviour
                 m_blackScreen.gameObject.SetActive(false);
                 m_screenFadeColor.a = 1f;
                 if (m_startFighting)
-                    m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_startAudioEng : m_startAudioRus);
+                    m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_startAudioEng : m_startAudioRus);            
                 else if (m_startShooter)
                 {
                     m_startShooter = false;
@@ -310,6 +315,11 @@ public class UIController : MonoBehaviour
             m_startText.color = Color.Lerp(m_startText.color, m_textFadeColor, Time.deltaTime * m_fadeTime);
             if (m_startText.color.a < 0.1f)
             {
+                if (m_restart)
+                {
+                    m_transposer.m_TrackedObjectOffset = new Vector3(0f, m_transposer.m_TrackedObjectOffset.y, m_transposer.m_TrackedObjectOffset.z - 2f);
+                    m_restart = false;
+                }
                 m_startText.gameObject.SetActive(false);
                 GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().StartGame();
                 m_startFighting = false;
@@ -323,9 +333,11 @@ public class UIController : MonoBehaviour
         {
             GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
             GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
+            m_transposer.m_TrackedObjectOffset = new Vector3(0f, m_transposer.m_TrackedObjectOffset.y, m_transposer.m_TrackedObjectOffset.z + 2f);
         }
         else
         {
+            m_fightingCamera.gameObject.SetActive(true);
             EnemySpawner.Instance.DestroyAll();
         }
         m_startText.gameObject.SetActive(true);
@@ -333,7 +345,6 @@ public class UIController : MonoBehaviour
         textColor.a = 1;
         m_startText.color = textColor;
         m_screenFadeColor.a = 0f;
-        m_restart = false;
         m_startFighting = true;
         Camera.main.GetComponent<AudioSource>().clip = m_fightingMusic;
         Camera.main.GetComponent<AudioSource>().Play();

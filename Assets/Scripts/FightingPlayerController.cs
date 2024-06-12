@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -78,6 +79,7 @@ public class FightingPlayerController : MonoBehaviour
     void Update()
     {
         m_anim.SetBool(m_HashDie, m_dead);
+
         if (!m_dead && m_status != FightingStatus.None)
         {
             m_hit = m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "BodyHit" || m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "HeadHit";
@@ -141,7 +143,7 @@ public class FightingPlayerController : MonoBehaviour
     private void OnAnimatorMove()
     {
         m_isGoingThrough = m_input.Move.x > 0 && Vector3.Distance(transform.position, m_enemy.transform.position) < 0.7f;
-        m_rb.MovePosition(m_rb.position + m_anim.deltaPosition.magnitude * transform.forward * m_speed * m_input.Move.x * (m_bounds || m_isGoingThrough ? 0 : 1));
+        m_rb.MovePosition(m_rb.position + (m_bounds || m_isGoingThrough ? 0 : 1) * m_anim.deltaPosition.magnitude * m_input.Move.x * m_speed * transform.forward);
     }
 
     void Hit(int hitPart)
@@ -158,7 +160,8 @@ public class FightingPlayerController : MonoBehaviour
         else if(m_health > 0)
         {
             m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
-            m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
+            if (!m_bounds)
+                m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);
             m_status = FightingStatus.Hit;
@@ -177,12 +180,12 @@ public class FightingPlayerController : MonoBehaviour
             // if collide part has block, do nothing
             if (m_col.bounds.max.y - part <= point.y && !m_input.UpperBlock)
             {
-                Debug.Log("Player Upper hit");
+               // Debug.Log("Player Upper hit");
                 Hit(1);
             }
             if (m_col.bounds.max.y - part > point.y && !m_input.MiddleBlock)
             {
-                Debug.Log("Player Middle hit");
+               // Debug.Log("Player Middle hit");
                 Hit(2);
             }
         }
@@ -200,7 +203,6 @@ public class FightingPlayerController : MonoBehaviour
     {
         m_status = FightingStatus.None;
         m_dead = false;
-        transform.SetPositionAndRotation(m_startPosition.localPosition, m_startPosition.localRotation);
         transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);
         m_rb.position = m_startPosition.position;
         m_rb.rotation = m_startPosition.rotation;
@@ -208,5 +210,6 @@ public class FightingPlayerController : MonoBehaviour
         m_healthBar.value = m_health;
         m_anim.Rebind();
         m_anim.Update(0f);
+
     }
 }

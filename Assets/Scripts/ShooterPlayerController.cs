@@ -36,8 +36,6 @@ public class ShooterPlayerController : MonoBehaviour
     [SerializeField]
     AudioSource m_voice;
     [SerializeField]
-    AudioSource m_steps;
-    [SerializeField]
     AudioClip m_crouchStep;
     [SerializeField]
     AudioClip[] m_stepSounds;
@@ -46,6 +44,7 @@ public class ShooterPlayerController : MonoBehaviour
 
     PlayerInput m_input;
     Animator m_anim;
+    AudioSource m_steps;
     Rigidbody m_rb;
     CapsuleCollider m_col;
     Vignette m_damageVignette;
@@ -91,8 +90,8 @@ public class ShooterPlayerController : MonoBehaviour
     readonly float m_crouchOffset = 0.4f;
     //max step per frame for gun rig movement
     readonly float m_gunRotationStep = 0.5f;
-    readonly float m_vignetteMax = 0.74f;
-    readonly float m_vignetteMin = 0.56f;
+    readonly float m_vignetteMax = 0.8f;
+    readonly float m_vignetteMin = 0.48f;
 
     //start gun rig rotations
     Quaternion m_baseTR;
@@ -133,6 +132,7 @@ public class ShooterPlayerController : MonoBehaviour
         m_baseTL = m_TargetL.localRotation;
         m_baseTR = m_TargetR.localRotation;
         m_anim = GetComponent<Animator>();
+        m_steps = GetComponent<AudioSource>();
         m_input = GetComponent<PlayerInput>();
         m_rb = GetComponent<Rigidbody>();
         m_col = GetComponent<CapsuleCollider>();
@@ -285,11 +285,11 @@ public class ShooterPlayerController : MonoBehaviour
         if (m_isCrouched != m_input.Crouch)
         {
             //if player is not standing behind a cover and crouch button is pressed, do nothing
-            if (m_input.Crouch && Physics.Raycast(transform.position, transform.forward, 2f, LayerMask.GetMask("Cover")) || !m_input.Crouch)
+            if (m_input.Crouch && Physics.Raycast(m_col.bounds.center, transform.forward, 2f, LayerMask.GetMask("Cover")) || !m_input.Crouch)
             {
                 m_isCrouched = m_input.Crouch;
                 if (!m_isAiming)
-                    SetCameraCrouchOffset(m_isCrouched);
+                    SetCrouchOffset(m_isCrouched);
             }
             else if (m_input.Crouch)
             {
@@ -305,14 +305,14 @@ public class ShooterPlayerController : MonoBehaviour
         {
             m_isCrouched = false;
             if (!m_isAiming)
-                SetCameraCrouchOffset(m_isCrouched);
+                SetCrouchOffset(m_isCrouched);
             m_input.DisableCrouch();
         }
 
         if (m_aimCrouched && Vector3.Dot(transform.forward, Camera.main.transform.forward) >= 0)
         {
             m_aimCrouched = false;
-            SetCameraCrouchOffset(!m_isAiming);
+            SetCrouchOffset(!m_isAiming);
             ResetAim();
             m_anim.SetBool(m_HashAimCrouch, m_aimCrouched);
         }
@@ -326,13 +326,13 @@ public class ShooterPlayerController : MonoBehaviour
     /// Moves camera vericaly and changes collider
     /// </summary>
     /// <param name="isCrouch">begin or stop crouching</param>
-    void SetCameraCrouchOffset(bool isCrouch)
+    void SetCrouchOffset(bool isCrouch)
     {
         //moves cameras
         Vector3 offset = new(0f, m_aimCameraTarget.localPosition.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
         //changes collider according to crouch animations
         m_col.center = new(m_col.center.x, m_col.center.y + (isCrouch ? -1 : 1) * m_crouchOffset, 0f);
-        m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.1f);
+        m_col.height += (isCrouch ? -1 : 1) * (m_crouchOffset + 0.2f);
         m_aimCameraTarget.localPosition = m_moveCameraTarget.localPosition = offset;
     }
 
@@ -352,9 +352,7 @@ public class ShooterPlayerController : MonoBehaviour
         }
 
         move.y = 0f;
-        // transform.position += move * m_anim.deltaPosition.magnitude;
         m_rb.MovePosition(m_rb.position + move * m_anim.deltaPosition.magnitude);
-        //m_rb.MoveRotation(m_anim.deltaRotation);
     }
 
     /// <summary>
@@ -366,18 +364,18 @@ public class ShooterPlayerController : MonoBehaviour
     {
         m_aimTarget = Camera.main.transform.position + Camera.main.transform.forward * m_aimDistance;
 
-        if (Physics.SphereCast(Camera.main.transform.position, 0.5f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
+        if (!Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, m_aimDistance, LayerMask.GetMask("Enemy")))
         {
-            if (Physics.SphereCast(m_gun.BarrelLocation.position, 0.2f, hitInfo.point - m_gun.BarrelLocation.position, out RaycastHit gunHitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
+            if (Physics.SphereCast(Camera.main.transform.position, 0.3f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
                 var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
-                // if the nearest enemy is not close, move aiming camera
-                //if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 5f)
-                //{
-                //    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                //    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                //}
-                m_aimTarget = gunHitInfo.point;
+                //if the nearest enemy is not close, move aiming camera
+                if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 5f)
+                {
+                    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                }
+                m_aimTarget = hitInfo.point;
             }
         }
     }
@@ -406,7 +404,7 @@ public class ShooterPlayerController : MonoBehaviour
             //when crouch and aiming, stand up
             if (m_isCrouched && !m_aimCrouched)
             {
-                SetCameraCrouchOffset(!isAiming);
+                SetCrouchOffset(!isAiming);
             }
             m_anim.SetBool(m_HashAimCrouch, m_aimCrouched);
             m_isAiming = isAiming;
@@ -492,7 +490,7 @@ public class ShooterPlayerController : MonoBehaviour
         if (!m_dead)
         {
             Hit();
-            Debug.Log("PLAYER HIT");
+           // Debug.Log("PLAYER HIT");
         }
     }
 
@@ -504,13 +502,14 @@ public class ShooterPlayerController : MonoBehaviour
         GetComponent<RigBuilder>().enabled = false;
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(m_gun.BarrelLocation.position, m_aimTarget);
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(m_gun.BarrelLocation.position, m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * m_aimDistance);
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawLine(m_gun.BarrelLocation.position, m_aimTarget);
+    //    Gizmos.color = Color.magenta;
+    //    Gizmos.DrawLine(m_gun.BarrelLocation.position, m_gun.BarrelLocation.position + m_gun.BarrelLocation.forward * m_aimDistance);
+    //}
+
     /// <summary>
     /// Reset player's values, when the player is dead
     /// </summary>

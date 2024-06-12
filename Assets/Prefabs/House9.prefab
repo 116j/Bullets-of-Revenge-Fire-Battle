@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8519507271525047902}
   - component: {fileID: 2991880674125157113}
   - component: {fileID: 6989463753478805905}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: bat9-fenetres
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: 4629465372294768926}
   - component: {fileID: 9094378026715191685}
   - component: {fileID: 3327491252296106600}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: bat9-moulure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 1871451544824943746}
   - component: {fileID: 5427243923624140139}
   - component: {fileID: 8866199111416614417}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: bat9-structure
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 1041149510099131286}
   - component: {fileID: 2786062450370800732}
   - component: {fileID: 951355120837575978}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: bat9-toiture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -393,7 +393,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9178776938851202466}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: House9
   m_TagString: Untagged
   m_Icon: {fileID: 0}

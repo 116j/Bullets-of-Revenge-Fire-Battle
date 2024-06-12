@@ -1046,7 +1046,7 @@ MonoBehaviour:
   m_barrelLocation: {fileID: 6621868539547793234}
   m_spotOccupiedMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1152
   m_stepSound: {fileID: 8300000, guid: 336b2664432d9874fb7161305a534b40, type: 3}
   m_reloadSound: {fileID: 8300000, guid: ee9383f339b65b14e8629700d8adb570, type: 3}
 --- !u!136 &6109879698106706234

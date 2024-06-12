@@ -56,7 +56,7 @@ public class PlayerInput : MonoBehaviour
     float m_cameraSensativity = 1f;
     Vector2 m_invert = new(1, 1);
     bool m_playerDied = false;
-    bool m_gameStarted = false;
+    bool m_gameStarted = true;
 
     UnityEngine.InputSystem.PlayerInput m_input;
 

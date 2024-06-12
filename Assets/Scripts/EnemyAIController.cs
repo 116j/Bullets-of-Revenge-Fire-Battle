@@ -26,7 +26,7 @@ public class EnemyAIController : MonoBehaviour
     AudioClip m_reloadSound;
 
     //the number of created spots
-    static int m_spotNum = 0;
+    static byte m_spotNum = 0;
 
     //player
     Transform m_target;
@@ -89,7 +89,7 @@ public class EnemyAIController : MonoBehaviour
     readonly float m_safeDist = 8f;
     readonly float m_turnSpeed = 60f;
     //radius for spherecast
-    readonly float m_detectRadius = 0.5f;
+    readonly float m_detectRadius = 0.3f;
     //offset of collider change when enemy is hidding
     readonly float m_hideOffset = 0.35f;
     //max step per frame for riffle rig movement
@@ -106,8 +106,8 @@ public class EnemyAIController : MonoBehaviour
     float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
     //how many point decrease from health when the enemy is hit
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1f : 0.5f;
-    float ShootSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f: 0.75f;
-    float ReloadSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.2f: 0.25f;
+    float ShootSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 0.75f;
+    float ReloadSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.2f : 0.25f;
     public bool IsDead => m_dead;
 
     // Start is called before the first frame update
@@ -127,7 +127,6 @@ public class EnemyAIController : MonoBehaviour
         m_shootSound = m_barrelLocation.GetComponent<AudioSource>();
         m_magazineStore = RifleCapacity;
         m_currentAction = Pursue;
-        // m_dead = true;
         ResetAim();
     }
 
@@ -136,10 +135,10 @@ public class EnemyAIController : MonoBehaviour
     {
         m_anim.SetBool(m_HashDie, m_dead);
 
-        Debug.Log(gameObject.name + " " + m_currentAction.Method.Name);
+       // Debug.Log(gameObject.name + " " + m_currentAction.Method.Name);
         if (!m_dead)
         {
-            //if an enemy go to hide spot for waitTime without being hit - go to attack spot
+            //if an enemy is going to the hide spot for waitTime without being hit - go to attack spot
             if (m_hide)
             {
                 m_hideTimer += Time.deltaTime;
@@ -159,8 +158,7 @@ public class EnemyAIController : MonoBehaviour
                 }
                 if (m_currentAction == Hide)
                 {
-                    m_col.center = new(m_col.center.x, m_col.center.y + m_hideOffset, 0f);
-                    m_col.height += (m_hideOffset + 0.2f);
+                    Hide(false);
                 }
                 m_anim.SetBool(m_HashAiming, false);
                 EnableObstacle(false);
@@ -171,8 +169,7 @@ public class EnemyAIController : MonoBehaviour
             {
                 if (m_currentAction == Hide)
                 {
-                    m_col.center = new(m_col.center.x, m_col.center.y + m_hideOffset, 0f);
-                    m_col.height += (m_hideOffset + 0.2f);
+                    Hide(false);
                 }
                 EnableObstacle(false);
                 m_anim.SetBool(m_HashAiming, false);
@@ -198,7 +195,7 @@ public class EnemyAIController : MonoBehaviour
 
             m_currentAction();
 
-            if (m_currentAction != Attack)
+            if (m_currentAction != Attack && m_currentAction != Hide)
             {
                 Attack();
             }
@@ -255,12 +252,12 @@ public class EnemyAIController : MonoBehaviour
         RaycastHit[] rayhits;
         if (!m_hide)
         {
-            rayhits = Physics.SphereCastAll(transform.position + Vector3.up * m_detectRadius, 3.5f, m_findCoverForward, m_detectDist, LayerMask.GetMask("Cover"))
+            rayhits = Physics.SphereCastAll(transform.position + Vector3.up, 3.5f, m_findCoverForward, m_detectDist, LayerMask.GetMask("Cover"))
                .OrderBy(c => Vector3.Distance(m_target.position, c.collider.gameObject.transform.position)).ToArray();
         }
         else
         {
-            rayhits = Physics.SphereCastAll(transform.position + Vector3.up * m_detectRadius, 7f, transform.forward, 0.01f, LayerMask.GetMask("Cover"))
+            rayhits = Physics.SphereCastAll(transform.position + Vector3.up, 7f, transform.forward, 0.01f, LayerMask.GetMask("Cover"))
                .OrderBy(c => Vector3.Distance(transform.position, c.collider.gameObject.transform.position)).ToArray();
         }
 
@@ -272,7 +269,7 @@ public class EnemyAIController : MonoBehaviour
                 //distance from a cover to the enemy
                 CoverPlayerDistZ = Mathf.Abs(m_target.position.z - rayhit.collider.gameObject.transform.position.z);
                 if (rayhit.collider.gameObject != m_currentCover
-                    && Mathf.Abs(m_target.position.z - transform.position.z)> Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z)
+                    && Mathf.Abs(m_target.position.z - transform.position.z) > Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z)
                     && CoverPlayerDistZ < m_shootDist
                     && CoverPlayerDistZ > m_safeDist)
                 // && distZ > Mathf.Abs(transform.position.z - rayhit.collider.gameObject.transform.position.z))
@@ -310,7 +307,7 @@ public class EnemyAIController : MonoBehaviour
     /// <returns></returns>
     bool DetectPlayerShoot()
     {
-        RaycastHit[] objsInArea = Physics.SphereCastAll(transform.position + Vector3.up * m_detectRadius, m_detectRadius, transform.forward, 0.01f, LayerMask.GetMask("Bullet"));
+        RaycastHit[] objsInArea = Physics.SphereCastAll(transform.position + Vector3.up, m_detectRadius, transform.forward, 0.01f, LayerMask.GetMask("Bullet"));
         return objsInArea.Length > 0;
     }
     /// <summary>
@@ -318,6 +315,11 @@ public class EnemyAIController : MonoBehaviour
     /// </summary>
     void ChooseCoverSpot()
     {
+        if (m_spotCol != null)
+        {
+            Destroy(m_spotCol);
+            m_spotCol = null;
+        }
         var coverBounds = m_currentCover.GetComponent<Collider>().bounds;
         bool found;
         Vector3 standSpot = new Vector3(transform.position.x, m_center.position.y, coverBounds.center.z);
@@ -366,6 +368,7 @@ public class EnemyAIController : MonoBehaviour
         //if a spot is not found - seeking a new cover
         if (!found && !m_noFree)
         {
+            m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
             m_currentAction = FindCover;
             return;
         }
@@ -381,7 +384,7 @@ public class EnemyAIController : MonoBehaviour
         }
 
         //if there's no taken spots - create new spot
-        var rayhits = Physics.SphereCastAll(standSpot, m_detectRadius, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
+        var rayhits = Physics.SphereCastAll(standSpot, m_detectRadius * 2, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
         if (rayhits.Length == 0 || (rayhits.Length == 1 && rayhits[0].collider.gameObject == gameObject))
         {
             m_spotCol = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -396,6 +399,7 @@ public class EnemyAIController : MonoBehaviour
         }
         else
         {
+            m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
             m_currentAction = FindCover;
             return;
         }
@@ -419,7 +423,7 @@ public class EnemyAIController : MonoBehaviour
         while (!found && coverPos.x >= coverBounds.min.x && coverPos.x <= coverBounds.max.x)
         {
             coverPos.x += delta;
-            var rayhits = Physics.SphereCastAll(coverPos, m_detectRadius, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
+            var rayhits = Physics.SphereCastAll(coverPos, m_detectRadius * 2, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
             NavMesh.CalculatePath(transform.position, new Vector3(coverPos.x, transform.position.y, coverPos.z), NavMesh.AllAreas, path);
             if (path.status == NavMeshPathStatus.PathComplete && (rayhits.Length == 0 || (rayhits.Length == 1 && rayhits[0].collider.gameObject == gameObject)))
             {
@@ -449,14 +453,18 @@ public class EnemyAIController : MonoBehaviour
             return;
         }
         //spots in rhe current spot's place
-        var rayhits = Physics.SphereCastAll(m_spotCol.transform.position, m_detectRadius, Vector3.forward, 0.001f, LayerMask.GetMask("Spot"), QueryTriggerInteraction.Collide);
+        var rayhits = Physics.SphereCastAll(m_spotCol.transform.position, m_detectRadius * 2, Vector3.forward, 0.001f, m_spotOccupiedMask, QueryTriggerInteraction.Collide);
 
         foreach (var hit in rayhits)
         {
             //if spot's place is taken by a spot or an enemy and spot's name is less than detected spot's name
             if (hit.collider.gameObject != gameObject && hit.collider.gameObject != m_spotCol)
             {
-                if (Int32.Parse(hit.collider.gameObject.name) > Int32.Parse(m_spotCol.name))
+                if (1 << hit.collider.gameObject.layer == LayerMask.GetMask("Spot") && Int32.Parse(hit.collider.gameObject.name) > Int32.Parse(m_spotCol.name))
+                {
+                    break;
+                }
+                else
                 {
                     //delete the current spot
                     Destroy(m_spotCol);
@@ -510,6 +518,7 @@ public class EnemyAIController : MonoBehaviour
             ResetAim();
             m_anim.SetBool(m_HashAiming, false);
             m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
+            EnableObstacle(false);
             m_currentAction = FindCover;
             return;
         }
@@ -530,7 +539,7 @@ public class EnemyAIController : MonoBehaviour
             //if the enemy is not moving - rotate towards the player
             if (m_agent.velocity.sqrMagnitude < 0.01f)
             {
-                Vector3 rotateDir = Vector3.RotateTowards(transform.forward, m_target.position + Vector3.up * 1.2f - transform.position, Time.deltaTime * m_turnSpeed, 0f);
+                Vector3 rotateDir = Vector3.RotateTowards(transform.forward, m_target.position + Vector3.up - transform.position, Time.deltaTime * m_turnSpeed, 0f);
                 rotateDir.y = transform.forward.y;
                 m_rotating = Vector3.Angle(transform.forward, rotateDir) > 5f;
                 if (m_rotating)
@@ -540,13 +549,16 @@ public class EnemyAIController : MonoBehaviour
             }
             if (!m_anim.IsInTransition(1) && m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name == "Rifle_Aiming_Idle" && Vector3.Angle(m_barrelLocation.forward, (m_target.position + Vector3.up - m_barrelLocation.position).normalized) < 15f)
             {
-                //direction from the rifle's top to the player 
-                Vector3 aimDir = m_target.position + Vector3.up - m_barrelLocation.position - m_barrelLocation.forward * (m_target.position + Vector3.up - m_barrelLocation.position).magnitude;
 
+                //direction from the rifle's top to the player 
+                m_targetPoint = m_target.position + Vector3.up * 1.2f;
                 if (Physics.SphereCast(m_barrelLocation.position, m_detectRadius, m_target.position + Vector3.up * 1.2f - m_barrelLocation.position, out RaycastHit hit, m_shootDist, 1 << m_target.gameObject.layer))
                 {
-                    aimDir = hit.point - m_barrelLocation.position - m_barrelLocation.forward * (hit.point - m_barrelLocation.position).magnitude;
+                    m_targetPoint = hit.point;
                 }
+
+                Vector3 aimDir = m_targetPoint - m_barrelLocation.position - m_barrelLocation.forward * (m_targetPoint - m_barrelLocation.position).magnitude;
+
                 // slowly moves aim towards the player
                 if (Mathf.Abs(aimDir.x) > 0.02f)
                 {
@@ -562,13 +574,13 @@ public class EnemyAIController : MonoBehaviour
                 }
                 m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_TargetR.localRotation.eulerAngles.x, m_RPitch, m_RYaw), Time.deltaTime * m_turnSpeed);
                 m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_TargetL.localRotation.eulerAngles.x, m_LPitch, m_LYaw), Time.deltaTime * m_turnSpeed);
-                //if the rifle is pointinfg at the player -sets shoot target with a deviation
+                //if the rifle is pointinfg at the player - sets shoot target with a deviation
                 if (Physics.SphereCast(m_barrelLocation.position, m_detectRadius, m_barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                 {
-                    m_targetPoint = hit.point;
+                    m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-m_detectRadius / 2, m_detectRadius / 2) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius / 2, m_detectRadius / 2);
                     if (Physics.Raycast(m_barrelLocation.position, m_barrelLocation.forward, out hit, m_shootDist, 1 << m_target.gameObject.layer))
                     {
-                        m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius, m_detectRadius);
+                        m_targetPoint = hit.point + Vector3.right * UnityEngine.Random.Range(-m_detectRadius / 2, m_detectRadius / 2) + Vector3.up * UnityEngine.Random.Range(-m_detectRadius / 2, m_detectRadius / 2);
                     }
                     m_anim.SetTrigger(m_HashShooting);
                 }
@@ -593,6 +605,7 @@ public class EnemyAIController : MonoBehaviour
             && Vector3.Dot(new Vector3(0f, 0f, m_currentCover.transform.position.z - m_spotCol.transform.position.z), m_target.position + Vector3.up - m_spotCol.transform.position) < 0.2f)
         {
             m_findCoverForward = (m_target.position - m_barrelLocation.position).normalized;
+            EnableObstacle(false);
             m_currentAction = FindCover;
             return;
         }
@@ -601,12 +614,23 @@ public class EnemyAIController : MonoBehaviour
 
         if (m_waitTimer >= WaitTime && !DetectPlayerShoot())
         {
-            m_waitTimer = 0;
-            m_col.center = new(m_col.center.x, m_col.center.y + m_hideOffset, 0f);
-            m_col.height += (m_hideOffset + 0.2f);
-            m_hide = false;
-            m_hideTimer = 0;
+            Hide(false);
             m_currentAction = Attack;
+        }
+    }
+    /// <summary>
+    /// Hide or reveal
+    /// </summary>
+    /// <param name="hide"></param>
+    void Hide(bool hide)
+    {
+        m_col.center = new(m_col.center.x, m_col.center.y + m_hideOffset * (hide ? -1 : 1), 0f);
+        m_col.height += ((m_hideOffset + 0.2f) * (hide ? -1 : 1));
+        m_hide = hide;
+        if (hide)
+        {
+            m_waitTimer = 0;
+            m_hideTimer = 0;
         }
     }
     /// <summary>
@@ -623,19 +647,23 @@ public class EnemyAIController : MonoBehaviour
         {
             ResetAim();
             m_anim.SetBool(m_HashAiming, false);
-            m_col.center = new(m_col.center.x, m_col.center.y - m_hideOffset, 0f);
-            m_col.height -= (m_hideOffset + 0.2f);
+            Hide(true);
             m_currentAction = Hide;
-            m_hide = true;
         }
         //if an enemy is attacked while walking - find hide spot and go to it
         // if an enemy is hit while walking to hide spot - reset timer
         else if (m_currentAction != Attack)
         {
             m_hideTimer = 0;
+            if (m_currentAction == Hide)
+            {
+                Hide(false);
+            }
+
             if (!m_hide)
             {
                 m_hide = true;
+                EnableObstacle(false);
                 m_currentAction = FindCover;
             }
         }
@@ -671,8 +699,6 @@ public class EnemyAIController : MonoBehaviour
     public void PlayShotSound()
     {
         m_shootSound.Play();
-        Debug.Log("Enemy bullet sound plays: " + m_shootSound.isPlaying);
-
     }
     /// <summary>
     /// Playes step sound in animation
@@ -687,20 +713,20 @@ public class EnemyAIController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("bullet") && !m_dead)
         {
-            Debug.Log(gameObject.name + " HIT");
+           // Debug.Log(gameObject.name + " HIT");
             Hit();
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        if (m_target != null)
-            Gizmos.DrawLine(m_barrelLocation.position, m_target.position + Vector3.up * 1.5f);
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(m_barrelLocation.position, m_barrelLocation.position + m_barrelLocation.forward * m_shootDist);
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.blue;
+    //    if (m_target != null)
+    //        Gizmos.DrawLine(m_barrelLocation.position, m_target.position + Vector3.up * 1.5f);
+    //    Gizmos.color = Color.green;
+    //    Gizmos.DrawLine(m_barrelLocation.position, m_barrelLocation.position + m_barrelLocation.forward * m_shootDist);
 
-    }
+    //}
 
     private void OnDestroy()
     {

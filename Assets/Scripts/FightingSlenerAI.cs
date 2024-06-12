@@ -83,7 +83,7 @@ public class FightingSlenerAI : MonoBehaviour
                 if (m_runAway <= 0)
                     m_move = 0;
             }
-            if (Vector3.Distance(transform.position, m_player.transform.position) <= m_runawayDist)
+            else if (Vector3.Distance(transform.position, m_player.transform.position) <= m_runawayDist)
             {
                 m_runAway = Random.Range(0.1f, Reaction);
                 m_move = -1;
@@ -254,7 +254,7 @@ public class FightingSlenerAI : MonoBehaviour
 
     private void OnAnimatorMove()
     {
-        m_rb.MovePosition(m_rb.position + m_anim.deltaPosition.magnitude * m_move * m_speed * transform.forward * (m_bounds ? 0 : 1));
+        m_rb.MovePosition(m_rb.position + (m_bounds ? 0 : 1) * m_anim.deltaPosition.magnitude * m_move * m_speed * transform.forward);
     }
 
     void Hit(int hitPart)
@@ -269,7 +269,8 @@ public class FightingSlenerAI : MonoBehaviour
         else
         {
             m_audio.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
-            m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
+            if (!m_bounds)
+                m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);
             if (Random.value < 0.6f)
@@ -294,12 +295,12 @@ public class FightingSlenerAI : MonoBehaviour
             float part = m_col.bounds.size.y / 3f;
             if (m_col.bounds.min.y + part >= point.y && !m_lowerBlock)
             {
-                Debug.Log("Slender Lower hit");
+              //  Debug.Log("Slender Lower hit");
                 Hit(2);
             }
             else if (m_col.bounds.min.y + part < point.y && !m_middleBlock)
             {
-                Debug.Log("Slender Middle hit");
+               // Debug.Log("Slender Middle hit");
                 Hit(1);
             }
         }
