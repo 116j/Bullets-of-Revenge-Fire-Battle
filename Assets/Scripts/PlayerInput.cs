@@ -56,7 +56,7 @@ public class PlayerInput : MonoBehaviour
     float m_cameraSensativity = 1f;
     Vector2 m_invert = new(1, 1);
     bool m_playerDied = false;
-    bool m_gameStarted = true;
+    bool m_gameStarted = false;
 
     UnityEngine.InputSystem.PlayerInput m_input;
 
@@ -134,7 +134,7 @@ public class PlayerInput : MonoBehaviour
 
     public void OnCrouch()
     {
-        m_crouch = !m_crouch&&!m_inputLocked;
+        m_crouch = !m_crouch && !m_inputLocked;
     }
 
     public void OnFire(InputValue inputValue)
@@ -204,7 +204,7 @@ public class PlayerInput : MonoBehaviour
     public void ActivateSettings()
     {
         m_pause = UIController.Instance.SetActive();
-        Cursor.visible = m_pause||!m_gameStarted;
+        Cursor.visible = m_pause || !m_gameStarted;
     }
     /// <summary>
     /// Reset player and enemies,disables die layout

@@ -25,7 +25,7 @@ public class FightingSlenerAI : MonoBehaviour
     float m_runAway = 0;
     bool m_middleBlock = false;
     bool m_lowerBlock = false;
-    bool m_dead = false;
+    bool m_dead = true;
 
     readonly float m_speed = 0.8f;
     //max attack and block dist

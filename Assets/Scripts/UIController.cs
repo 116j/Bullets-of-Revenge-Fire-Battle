@@ -8,6 +8,7 @@ using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using YG;
 
 public enum GameDifficulty
 {
@@ -131,7 +132,6 @@ public class UIController : MonoBehaviour
 
     static UIController m_instance;
     public static UIController Instance => m_instance;
-    public bool Subtitles => m_subtitlesOn;
     public GameDifficulty GameDifficulty => m_gameDifficulty;
     public GameType CurrentGame { get; set; } = GameType.Shooter;
 
@@ -147,7 +147,6 @@ public class UIController : MonoBehaviour
     Color m_screenFadeColor;
     Color m_textFadeColor;
     Text m_restartText;
-    Text m_dieText;
     bool m_darkenScreen = false;
     bool m_startFighting = false;
     bool m_startShooter = false;
@@ -176,50 +175,7 @@ public class UIController : MonoBehaviour
         "Целиться", " Стрелять", "Бежать", "Присесть"
     }
     };
-    readonly string[][] m_startButtonsText =
-{
-        new string[]
-        {
-            "Strat","Settings","Quit"
-        },
-        new string[]
-        {
-            "Начать","Настройки","Выйти"
-        }
-    };
-    readonly string[][] m_settingsButtonsText =
-    {
-        new string[]
-        {
-            "Game","Audio","Controls","Quit Game"
-        },
-        new string[]
-        {
-            "Игра","Звук","Управление","Выйти из игры"
-        }
-    };
-    readonly string[][] m_gameplayElementsText =
-    {
-        new string[]
-        {
-            "Difficulty","Normal","Hard","Camera Turn Sensativity", "Quality","Low","Medium","High","Invert X","Invert Y"
-        },
-        new string[]
-        {
-            "Сложность", "Нормально","Сложно","Поворот камеры","Качество","Низкое","Среднее","Высокое","Инверсия X","Инверсия Y"
-        }
-    };
-    readonly string[][] m_audioElementsText =
-    {
-        new string[]
-        {
-            "Game","Music","Effects","Language","Suntitles"
-        },
-        new string[]
-        {
-            "Игра","Музыка","Эффекты","Язык","Субтитры"
-        }
-    };
+
     readonly string[][] m_subtitles = {
         new string[]{
             "I will avenge all the pain that i had to experience!",
@@ -249,14 +205,13 @@ public class UIController : MonoBehaviour
         m_settings = transform.GetChild(2).gameObject;
         m_transposer = m_fightingCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         m_restartText = m_dieLayout.transform.GetChild(1).GetComponent<Text>();
-        m_dieText = m_dieLayout.transform.GetChild(0).GetComponent<Text>();
         m_gameVoice = GetComponent<AudioSource>();
         m_screenFadeColor = m_blackScreen.color;
         m_screenFadeColor.a = 1f;
         m_textFadeColor = m_startText.color;
         m_textFadeColor.a = 0f;
 
-        if (Application.systemLanguage == SystemLanguage.Russian)
+        if (YandexGame.EnvironmentData.language == "ru")
         {
             m_language.value = 1;
         }
@@ -301,7 +256,7 @@ public class UIController : MonoBehaviour
                 m_blackScreen.gameObject.SetActive(false);
                 m_screenFadeColor.a = 1f;
                 if (m_startFighting)
-                    m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_startAudioEng : m_startAudioRus);            
+                    m_gameVoice.PlayOneShot(m_langIndex == 0 ? m_startAudioEng : m_startAudioRus);
                 else if (m_startShooter)
                 {
                     m_startShooter = false;
@@ -407,45 +362,14 @@ public class UIController : MonoBehaviour
     public void ChangeLanguage(int index)
     {
         m_langIndex = index;
+        YandexGame.SwitchLanguage(index == 1 ? "ru" : "en");
         m_subtitlesOn = !m_subtitlesOn;
         TurnSubtitles();
-        int i = 0;
-        foreach (var button in m_settingButtons.GetComponentsInChildren<Text>())
-        {
-            button.text = m_settingsButtonsText[index][i];
-            i++;
-        }
 
-        i = 0;
-        foreach (var button in m_startMenuButtons.GetComponentsInChildren<Text>())
-        {
-            button.text = m_startButtonsText[index][i];
-            i++;
-        }
-        int j = 0;
-
-        for (i = 0; i < m_gameLayout.transform.childCount; i++)
-        {
-            foreach (var button in m_gameLayout.transform.GetChild(i).GetComponentsInChildren<Text>())
-            {
-                button.text = m_gameplayElementsText[index][j];
-                j++;
-            }
-        }
-
-        for (i = 0; i < m_audioLayout.transform.childCount; i++)
-        {
-            m_audioLayout.transform.GetChild(i).GetComponentInChildren<Text>().text = m_audioElementsText[index][i];
-        }
-
-        m_header.text = index == 0 ? "SETTINGS" : "НАСТРОЙКИ";
         m_gameName.sprite = index == 0 ? m_gameNameEng : m_gameNameRus;
-        m_startText.text = index == 0 ? "Start\n\rfighting" : "Начинайте\n\rбой";
-        m_winText.text = index == 0 ? "Player\n\rwins!" : "Игрок\n\rпобедил!";
-        m_dieText.text = index == 0 ? "YOU\n\rDIED" : "ВЫ\n\rУМЕРЛИ";
 
         PlayableAsset[] cutscenes = index == 0 ? m_timelinesEng : m_timelinesRus;
-        for (i = 0; i < cutscenes.Length; i++)
+        for (int i = 0; i < cutscenes.Length; i++)
         {
             m_cutscenes.transform.GetChild(i).GetComponent<PlayableDirector>().playableAsset = cutscenes[i];
         }
@@ -680,6 +604,7 @@ public class UIController : MonoBehaviour
 
     public void Restart()
     {
+        YandexGame.ReviewShow(false);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

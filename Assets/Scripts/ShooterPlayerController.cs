@@ -49,7 +49,7 @@ public class ShooterPlayerController : MonoBehaviour
     CapsuleCollider m_col;
     Vignette m_damageVignette;
 
-    bool m_dead = false;
+    bool m_dead = true;
     //if player is in aiming mode
     bool m_isAiming = false;
     //if player is crouching

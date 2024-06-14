@@ -316,7 +316,7 @@ MonoBehaviour:
   m_aimImage: {fileID: 0}
   m_healthBar: {fileID: 0}
   m_damageVolume: {fileID: 11400000, guid: 29c29df1007e504458f3ba04f89dd808, type: 2}
-  m_voice: {fileID: 2636974689040999690}
+  m_voice: {fileID: 2800456528447573336}
   m_crouchStep: {fileID: 8300000, guid: 355442b52bfee3a44bd4600eb6815700, type: 3}
   m_stepSounds:
   - {fileID: 8300000, guid: 1ca06249615fd4e4d89292643ed67ac8, type: 3}
@@ -342,7 +342,7 @@ MonoBehaviour:
   m_fightingController: {fileID: 9100000, guid: 51dc206405bbcca4ca2ee53fb5b7e545, type: 2}
   m_startPosition: {fileID: 0}
   m_healthBar: {fileID: 0}
-  m_voice: {fileID: 2636974689040999690}
+  m_voice: {fileID: 2800456528447573336}
   m_hitSounds:
   - {fileID: 8300000, guid: 313c5a698f0b09e49b5a0648169310ff, type: 3}
   - {fileID: 8300000, guid: 63a930258ec82484dba436490451a011, type: 3}
@@ -1934,7 +1934,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6494315567482086632}
-  - component: {fileID: 2636974689040999690}
+  - component: {fileID: 2800456528447573336}
   m_Layer: 8
   m_Name: mixamorig:Head
   m_TagString: Untagged
@@ -1958,7 +1958,7 @@ Transform:
   - {fileID: 8320750777103818758}
   m_Father: {fileID: 5884568245125483922}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &2636974689040999690
+--- !u!82 &2800456528447573336
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1970,7 +1970,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: -6365219388983557540, guid: f6e615212dde21b4e98b1b0bb08953f0, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

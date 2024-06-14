@@ -1,12 +1,10 @@
-using Cinemachine;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class FightingPlayerController : MonoBehaviour
 {
     [SerializeField]
-    AnimatorController m_fightingController;
+    RuntimeAnimatorController m_fightingController;
     [SerializeField]
     Transform m_startPosition;
     [SerializeField]
@@ -36,7 +34,7 @@ public class FightingPlayerController : MonoBehaviour
 
     float m_health = 20;
     FightingStatus m_status;
-    bool m_dead = false;
+    bool m_dead = true;
     bool m_hit = false;
     bool m_win = false;
     //if player is colliding with level bounds
@@ -150,14 +148,14 @@ public class FightingPlayerController : MonoBehaviour
     {
         m_health -= HitPoint;
         m_healthBar.value = m_health; ;
-        if (m_health <= 0&&!m_win)
+        if (m_health <= 0 && !m_win)
         {
             m_dead = true;
             m_healthBar.value = 0;
             m_input.Die();
             m_status = FightingStatus.Die;
         }
-        else if(m_health > 0)
+        else if (m_health > 0)
         {
             m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
             if (!m_bounds)
@@ -180,12 +178,12 @@ public class FightingPlayerController : MonoBehaviour
             // if collide part has block, do nothing
             if (m_col.bounds.max.y - part <= point.y && !m_input.UpperBlock)
             {
-               // Debug.Log("Player Upper hit");
+                // Debug.Log("Player Upper hit");
                 Hit(1);
             }
             if (m_col.bounds.max.y - part > point.y && !m_input.MiddleBlock)
             {
-               // Debug.Log("Player Middle hit");
+                // Debug.Log("Player Middle hit");
                 Hit(2);
             }
         }
