@@ -1,2 +1,2 @@
 Build path: D:/unity/Builds/Bullets of Revenge. Fire Battle
-Build number: 18
+Build number: 26

@@ -73,6 +73,7 @@ public class PlayerInput : MonoBehaviour
     {
         if (!m_pause && m_gameStarted)
         {
+            Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
     }
@@ -93,6 +94,7 @@ public class PlayerInput : MonoBehaviour
     {
         m_gameStarted = true;
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public void Die()
@@ -134,17 +136,17 @@ public class PlayerInput : MonoBehaviour
 
     public void OnCrouch()
     {
-        m_crouch = !m_crouch && !m_inputLocked;
+        m_crouch = !m_crouch;
     }
 
     public void OnFire(InputValue inputValue)
     {
-        m_fire = inputValue.isPressed && !m_inputLocked;
+        m_fire = inputValue.isPressed;
     }
 
     public void OnRun(InputValue inputValue)
     {
-        m_run = inputValue.isPressed && !m_inputLocked;
+        m_run = inputValue.isPressed;
     }
 
     public void OnAim(InputValue inputValue)
@@ -205,6 +207,7 @@ public class PlayerInput : MonoBehaviour
     {
         m_pause = UIController.Instance.SetActive();
         Cursor.visible = m_pause || !m_gameStarted;
+        Cursor.lockState = Cursor.visible? CursorLockMode.None:CursorLockMode.Locked;
     }
     /// <summary>
     /// Reset player and enemies,disables die layout

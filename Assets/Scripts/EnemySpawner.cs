@@ -6,8 +6,6 @@ public class EnemySpawner : MonoBehaviour
 {
     [SerializeField]
     GameObject m_enemyPerfab;
-    [SerializeField]
-    int m_amountToSpawn;
 
     [Header("Enemy materials:")]
     [SerializeField]
@@ -16,10 +14,13 @@ public class EnemySpawner : MonoBehaviour
     List<GameObject> m_enemies;
 
     readonly float m_spawnBreak = 1.5f;
+    int m_amountToSpawn = 5;
+    int IncreaseAmount => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2 : 3;
 
     static EnemySpawner m_instance;
     public static EnemySpawner Instance => m_instance;
     Transform m_location;
+    int m_startAmount;
 
     private void Awake()
     {
@@ -28,7 +29,7 @@ public class EnemySpawner : MonoBehaviour
             m_instance = this;
         }
         m_location = transform;
-
+        m_startAmount = m_amountToSpawn;
         m_enemies = new List<GameObject>();
     }
 
@@ -60,6 +61,8 @@ public class EnemySpawner : MonoBehaviour
             m_enemies.Add(enemy);
             yield return new WaitForSeconds(m_spawnBreak);
         }
+
+        m_amountToSpawn += IncreaseAmount;
     }
 
     public void DestroyAll()
@@ -68,7 +71,7 @@ public class EnemySpawner : MonoBehaviour
         {
             Destroy(enemy);
         }
-
+        m_amountToSpawn = m_startAmount;
         m_enemies.Clear();
     }
 }

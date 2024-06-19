@@ -12,7 +12,7 @@ public class FightingPlayerController : MonoBehaviour
     [SerializeField]
     AudioSource m_voice;
     [SerializeField]
-    AudioClip[] m_hitSounds;
+    AudioClip m_hitSound;
 
     PlayerInput m_input;
     Animator m_anim;
@@ -43,6 +43,9 @@ public class FightingPlayerController : MonoBehaviour
     bool m_isGoingThrough = false;
     FightingSlenerAI m_enemy;
 
+
+    readonly float m_runawayDist = 0.5f;
+    readonly float m_goingThroughDist = 0.7f;
     readonly int m_upperHeadAttackCount = 4;
     readonly int m_attackCount = 2;
     readonly float m_speed = 3f;
@@ -70,7 +73,7 @@ public class FightingPlayerController : MonoBehaviour
 
         //m_input.LockInput();
         m_healthBar.maxValue = m_health;
-        Reset();
+        Restart();
     }
 
     // Update is called once per frame
@@ -80,7 +83,36 @@ public class FightingPlayerController : MonoBehaviour
 
         if (!m_dead && m_status != FightingStatus.None)
         {
-            m_hit = m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "BodyHit" || m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name == "HeadHit";
+            m_hit = false;
+            switch (m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name)
+            {
+                case "BodyHit":
+                case "HeadHit":
+                    m_status = FightingStatus.Hit;
+                    m_hit = true;
+                    break;
+                case "UpperMiddleRight":
+                case "UpperMiddleLeft":
+                case "UpperUpperHook":
+                case "UpperUpperStraightLeft":
+                case "UpperUpperStraightRight":
+                case "UpperUpperFromdown":
+                    m_status = FightingStatus.MiddleAttack;
+                    break;
+                case "LowerMiddleLeft":
+                case "LowerMiddleRight":
+                case "LowerUpperRight":
+                case "LowerUpperLeft":
+                case "LowerLowerLeft":
+                case "LowerLowerRight":
+                    m_status = FightingStatus.LowerAttack;
+                    break;
+                case "Idle":
+                case "MoveForward":
+                case "MoveBack":
+                    m_status = FightingStatus.Idle;
+                    break;
+            }
             // starts win animation and locks input if the enemy is dead
             if (m_enemy.Dead && !m_win)
             {
@@ -96,26 +128,25 @@ public class FightingPlayerController : MonoBehaviour
 
             if (m_input.UpperAttack && !m_hit)
             {
+                m_status = FightingStatus.MiddleAttack;
                 m_anim.SetTrigger(m_HashUpperAttack);
                 if (m_input.Move.y > 0.1)
                 {
-                    m_status = FightingStatus.MiddleAttack;
                     m_anim.SetInteger(m_HashRandom, Random.Range(1, m_upperHeadAttackCount + 1));
                 }
                 else
                 {
-                    m_status = FightingStatus.LowerAttack;
                     m_anim.SetInteger(m_HashRandom, Random.Range(1, m_attackCount + 1));
                 }
             }
             else if (m_input.LowerAttack && !m_hit)
             {
+                m_status = FightingStatus.LowerAttack;
                 m_anim.SetTrigger(m_HashLowerAttack);
                 m_status = m_input.Move.y > 0.1 ? FightingStatus.MiddleAttack : FightingStatus.LowerAttack;
                 m_anim.SetInteger(m_HashRandom, Random.Range(1, m_attackCount + 1));
             }
-
-            if (m_input.MiddleBlock && !m_hit)
+            else if (m_input.MiddleBlock && !m_hit)
             {
                 m_status = FightingStatus.MiddleBlock;
             }
@@ -123,12 +154,10 @@ public class FightingPlayerController : MonoBehaviour
             {
                 m_status = FightingStatus.UpperBlock;
             }
-            if (!m_hit)
-            {
-                m_status = FightingStatus.Idle;
-            }
+
             m_anim.SetBool(m_HashUpperBlock, m_input.UpperBlock);
             m_anim.SetBool(m_HashMiddleBlock, m_input.MiddleBlock);
+
         }
     }
 
@@ -140,8 +169,12 @@ public class FightingPlayerController : MonoBehaviour
 
     private void OnAnimatorMove()
     {
-        m_isGoingThrough = m_input.Move.x > 0 && Vector3.Distance(transform.position, m_enemy.transform.position) < 0.7f;
+        m_isGoingThrough = m_input.Move.x > 0 && Vector3.Distance(transform.position, m_enemy.transform.position) < m_goingThroughDist;
         m_rb.MovePosition(m_rb.position + (m_bounds || m_isGoingThrough ? 0 : 1) * m_anim.deltaPosition.magnitude * m_input.Move.x * m_speed * transform.forward);
+        if (m_bounds! && m_isGoingThrough && Vector3.Distance(transform.position, m_enemy.transform.position) < m_runawayDist)
+        {
+            m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
+        }
     }
 
     void Hit(int hitPart)
@@ -157,12 +190,12 @@ public class FightingPlayerController : MonoBehaviour
         }
         else if (m_health > 0)
         {
-            m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
+            m_voice.PlayOneShot(m_hitSound);
             if (!m_bounds)
                 m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
+            m_status = FightingStatus.Hit;
             m_anim.SetInteger(m_HashHitTarget, hitPart);
             m_anim.SetTrigger(m_HashHit);
-            m_status = FightingStatus.Hit;
         }
     }
 
@@ -195,12 +228,15 @@ public class FightingPlayerController : MonoBehaviour
         }
     }
     /// <summary>
-    /// Reset player's values, when the player is dead
+    ///  Reset player's values, when the player is dead
     /// </summary>
-    public void Reset()
+    /// <returns>if the player is father than the start position</returns>
+    public bool Restart()
     {
         m_status = FightingStatus.None;
         m_dead = false;
+        m_bounds = false;
+        bool z = transform.position.z > m_startPosition.position.z;
         transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);
         m_rb.position = m_startPosition.position;
         m_rb.rotation = m_startPosition.rotation;
@@ -208,6 +244,6 @@ public class FightingPlayerController : MonoBehaviour
         m_healthBar.value = m_health;
         m_anim.Rebind();
         m_anim.Update(0f);
-
+        return z;
     }
 }

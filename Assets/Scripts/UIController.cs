@@ -150,10 +150,12 @@ public class UIController : MonoBehaviour
     bool m_darkenScreen = false;
     bool m_startFighting = false;
     bool m_startShooter = false;
+    bool m_resetCam = false;
     readonly float m_fadeTime = 1.5f;
     bool m_restart = false;
     AudioSource m_gameVoice;
     CinemachineFramingTransposer m_transposer;
+    Transform m_respawnLocation;
 
     readonly string[][] m_fightingCommands = {
     new string[]
@@ -272,6 +274,7 @@ public class UIController : MonoBehaviour
             {
                 if (m_restart)
                 {
+                    if(m_resetCam)
                     m_transposer.m_TrackedObjectOffset = new Vector3(0f, m_transposer.m_TrackedObjectOffset.y, m_transposer.m_TrackedObjectOffset.z - 2f);
                     m_restart = false;
                 }
@@ -286,9 +289,10 @@ public class UIController : MonoBehaviour
     {
         if (m_restart)
         {
-            GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Reset();
-            GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Reset();
-            m_transposer.m_TrackedObjectOffset = new Vector3(0f, m_transposer.m_TrackedObjectOffset.y, m_transposer.m_TrackedObjectOffset.z + 2f);
+            m_resetCam = GameObject.FindGameObjectWithTag("Player").GetComponent<FightingPlayerController>().Restart();
+            GameObject.FindGameObjectWithTag("Enemy").GetComponent<FightingSlenerAI>().Restart();
+            if (m_resetCam)
+                m_transposer.m_TrackedObjectOffset = new Vector3(0f, m_transposer.m_TrackedObjectOffset.y, m_transposer.m_TrackedObjectOffset.z + 2f);
         }
         else
         {
@@ -311,7 +315,7 @@ public class UIController : MonoBehaviour
         m_screenFadeColor.a = 0f;
         m_restart = false;
 
-        GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Reset();
+        GameObject.FindGameObjectWithTag("Player").GetComponent<ShooterPlayerController>().Restart();
 
         foreach (OnTriggerSend trigger in GameObject.Find("TriggerZones").GetComponentsInChildren<OnTriggerSend>())
         {
@@ -363,8 +367,7 @@ public class UIController : MonoBehaviour
     {
         m_langIndex = index;
         YandexGame.SwitchLanguage(index == 1 ? "ru" : "en");
-        m_subtitlesOn = !m_subtitlesOn;
-        TurnSubtitles();
+        TurnSubtitles(m_subtitlesOn);
 
         m_gameName.sprite = index == 0 ? m_gameNameEng : m_gameNameRus;
 
@@ -375,25 +378,23 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public void TurnSubtitles()
+    public void TurnSubtitles(bool turn)
     {
-        if (m_subtitlesOn)
+        if (turn)
         {
-            m_subtitlesButtonText.text = "Off";
-            foreach (Text subtitle in m_subtitleText)
-            {
-                subtitle.text = "";
-            }
-        }
-        else
-        {
-            m_subtitlesButtonText.text = "On";
             for (int i = 0; i < m_subtitleText.Length; i++)
             {
                 m_subtitleText[i].text = m_subtitles[m_langIndex][i];
             }
         }
-        m_subtitlesOn = !m_subtitlesOn;
+        else
+        {
+            foreach (Text subtitle in m_subtitleText)
+            {
+                subtitle.text = "";
+            }
+        }
+        m_subtitlesOn = turn;
     }
 
     public void SetNormalDifficulty()
@@ -601,10 +602,19 @@ public class UIController : MonoBehaviour
 #endif
     }
 
+    private void OnApplicationPause(bool pause)
+    {
+        AudioListener.pause = pause;
+    }
+
+    private void OnApplicationFocus(bool focus)
+    {
+        AudioListener.pause = !focus;
+    }
 
     public void Restart()
     {
-        YandexGame.ReviewShow(false);
+        YandexGame.ReviewShow(true);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

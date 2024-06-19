@@ -49,7 +49,7 @@ public class ShooterPlayerController : MonoBehaviour
     CapsuleCollider m_col;
     Vignette m_damageVignette;
 
-    bool m_dead = true;
+    bool m_dead = false;
     //if player is in aiming mode
     bool m_isAiming = false;
     //if player is crouching
@@ -139,8 +139,8 @@ public class ShooterPlayerController : MonoBehaviour
         m_damageVignette = (Vignette)m_damageVolume.components[0];
 
         m_healthBar.maxValue = m_health;
-        Reset();
-        // m_input.LockInput();
+        Restart();
+         //m_input.LockInput();
     }
 
     /// <summary>
@@ -368,13 +368,13 @@ public class ShooterPlayerController : MonoBehaviour
         {
             if (Physics.SphereCast(Camera.main.transform.position, 0.3f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
-                var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
-                //if the nearest enemy is not close, move aiming camera
-                if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 5f)
-                {
-                    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
-                }
+                //var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
+                ////if the nearest enemy is not close, move aiming camera
+                //if (Vector3.Angle(Camera.main.transform.forward, rotateDir) > 5f)
+                //{
+                //    m_cameraPitch += rotateDir.y * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                //    m_cameraYaw += rotateDir.x * Time.fixedDeltaTime * m_cameraRotationSpeed;
+                //}
                 m_aimTarget = hitInfo.point;
             }
         }
@@ -513,7 +513,13 @@ public class ShooterPlayerController : MonoBehaviour
     /// <summary>
     /// Reset player's values, when the player is dead
     /// </summary>
-    public void Reset()
+    /// 
+    public void UpdateStartPosition(Transform position)
+    {
+        m_startPosition = position;
+    }
+
+    public void Restart()
     {
         m_dead = false;
         transform.SetPositionAndRotation(m_startPosition.position, m_startPosition.rotation);

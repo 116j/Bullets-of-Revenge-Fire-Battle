@@ -343,10 +343,7 @@ MonoBehaviour:
   m_startPosition: {fileID: 0}
   m_healthBar: {fileID: 0}
   m_voice: {fileID: 2800456528447573336}
-  m_hitSounds:
-  - {fileID: 8300000, guid: 313c5a698f0b09e49b5a0648169310ff, type: 3}
-  - {fileID: 8300000, guid: 63a930258ec82484dba436490451a011, type: 3}
-  - {fileID: 8300000, guid: f3f3566dfbae4244d965f0e34ec2edf2, type: 3}
+  m_hitSound: {fileID: 8300000, guid: 313c5a698f0b09e49b5a0648169310ff, type: 3}
 --- !u!114 &848464621492742256
 MonoBehaviour:
   m_ObjectHideFlags: 0

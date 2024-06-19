@@ -56,7 +56,7 @@ public class EnemyAIController : MonoBehaviour
 
     bool m_dead;
     bool m_hide = false;
-    float m_health = 3;
+    float m_health = 4.8f;
     //current amount of bullets in the riffle
     int m_magazineStore;
     //timer for hide
@@ -105,7 +105,7 @@ public class EnemyAIController : MonoBehaviour
     //time when the player should stop hiding
     float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
     //how many point decrease from health when the enemy is hit
-    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1f : 0.5f;
+    float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.8f : 0.6f;
     float ShootSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 0.75f;
     float ReloadSpeed => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.2f : 0.25f;
     public bool IsDead => m_dead;
@@ -717,6 +717,7 @@ public class EnemyAIController : MonoBehaviour
             Hit();
         }
     }
+
 
     //private void OnDrawGizmos()
     //{
