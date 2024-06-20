@@ -1,4 +1,4 @@
-using Cinemachine;
+п»їusing Cinemachine;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -8,7 +8,6 @@ using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using YG;
 
 public enum GameDifficulty
 {
@@ -147,6 +146,7 @@ public class UIController : MonoBehaviour
     Color m_screenFadeColor;
     Color m_textFadeColor;
     Text m_restartText;
+    Text m_dieText;
     bool m_darkenScreen = false;
     bool m_startFighting = false;
     bool m_startShooter = false;
@@ -164,7 +164,7 @@ public class UIController : MonoBehaviour
     },
     new string[]
     {
-        "Верхняя атака", "Нижняя атака", "Верхний блок", "Нижний блок"
+        "Р’РµСЂС…РЅСЏСЏ Р°С‚Р°РєР°", "РќРёР¶РЅСЏСЏ Р°С‚Р°РєР°", "Р’РµСЂС…РЅРёР№ Р±Р»РѕРє", "РќРёР¶РЅРёР№ Р±Р»РѕРє"
     }
     };
     readonly string[][] m_shooterCommands = {
@@ -174,8 +174,53 @@ public class UIController : MonoBehaviour
     },
     new string[]
     {
-        "Целиться", " Стрелять", "Бежать", "Присесть"
+        "Р¦РµР»РёС‚СЊСЃСЏ", " РЎС‚СЂРµР»СЏС‚СЊ", "Р‘РµР¶Р°С‚СЊ", "РџСЂРёСЃРµСЃС‚СЊ"
     }
+    };
+
+    readonly string[][] m_startButtonsText =
+{
+        new string[]
+        {
+            "Strat","Settings","Quit"
+        },
+        new string[]
+        {
+            "РќР°С‡Р°С‚СЊ","РќР°СЃС‚СЂРѕР№РєРё","Р’С‹Р№С‚Рё"
+        }
+    };
+    readonly string[][] m_settingsButtonsText =
+    {
+        new string[]
+        {
+            "Game","Audio","Controls","Quit Game"
+        },
+        new string[]
+        {
+            "РРіСЂР°","Р—РІСѓРє","РЈРїСЂР°РІР»РµРЅРёРµ","Р’С‹Р№С‚Рё РёР· РёРіСЂС‹"
+        }
+    };
+    readonly string[][] m_gameplayElementsText =
+    {
+        new string[]
+        {
+            "Difficulty","Normal","Hard","Camera Turn Sensativity", "Quality","Low","Medium","High","Invert X","Invert Y"
+        },
+        new string[]
+        {
+            "РЎР»РѕР¶РЅРѕСЃС‚СЊ", "РќРѕСЂРјР°Р»СЊРЅРѕ","РЎР»РѕР¶РЅРѕ","РџРѕРІРѕСЂРѕС‚ РєР°РјРµСЂС‹","РљР°С‡РµСЃС‚РІРѕ","РќРёР·РєРѕРµ","РЎСЂРµРґРЅРµРµ","Р’С‹СЃРѕРєРѕРµ","РРЅРІРµСЂСЃРёСЏ X","РРЅРІРµСЂСЃРёСЏ Y"
+        }
+    };
+    readonly string[][] m_audioElementsText =
+    {
+        new string[]
+        {
+            "Game","Music","Effects","Language","Suntitles"
+        },
+        new string[]
+        {
+            "РРіСЂР°","РњСѓР·С‹РєР°","Р­С„С„РµРєС‚С‹","РЇР·С‹Рє","РЎСѓР±С‚РёС‚СЂС‹"
+        }
     };
 
     readonly string[][] m_subtitles = {
@@ -186,11 +231,11 @@ public class UIController : MonoBehaviour
         "Let's see who wins!",
         "I have avenged my family and rid the world of evil! Now I can go to them!"},
         new string[]{
-        "Я отомщу за всю боль, которую мне пришлось испытать!",
-        "Давно не виделись, жирдяй!",
-        "Ты убил мою семью и съел моих детей, ублюдок!\n\r Я отомщу за них и очищу мир от такого зла, как ты, Слендермен!",
-        "Посмотрим кто кого!",
-        "Я отомстил за свою семью и избавил мир ото зла! Теперь я могу отправится к ним!"}
+        "РЇ РѕС‚РѕРјС‰Сѓ Р·Р° РІСЃСЋ Р±РѕР»СЊ, РєРѕС‚РѕСЂСѓСЋ РјРЅРµ РїСЂРёС€Р»РѕСЃСЊ РёСЃРїС‹С‚Р°С‚СЊ!",
+        "Р”Р°РІРЅРѕ РЅРµ РІРёРґРµР»РёСЃСЊ, Р¶РёСЂРґСЏР№!",
+        "РўС‹ СѓР±РёР» РјРѕСЋ СЃРµРјСЊСЋ Рё СЃСЉРµР» РјРѕРёС… РґРµС‚РµР№, СѓР±Р»СЋРґРѕРє!\n\r РЇ РѕС‚РѕРјС‰Сѓ Р·Р° РЅРёС… Рё РѕС‡РёС‰Сѓ РјРёСЂ РѕС‚ С‚Р°РєРѕРіРѕ Р·Р»Р°, РєР°Рє С‚С‹, РЎР»РµРЅРґРµСЂРјРµРЅ!",
+        "РџРѕСЃРјРѕС‚СЂРёРј РєС‚Рѕ РєРѕРіРѕ!",
+        "РЇ РѕС‚РѕРјСЃС‚РёР» Р·Р° СЃРІРѕСЋ СЃРµРјСЊСЋ Рё РёР·Р±Р°РІРёР» РјРёСЂ РѕС‚Рѕ Р·Р»Р°! РўРµРїРµСЂСЊ СЏ РјРѕРіСѓ РѕС‚РїСЂР°РІРёС‚СЃСЏ Рє РЅРёРј!"}
     };
 
 
@@ -207,13 +252,14 @@ public class UIController : MonoBehaviour
         m_settings = transform.GetChild(2).gameObject;
         m_transposer = m_fightingCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         m_restartText = m_dieLayout.transform.GetChild(1).GetComponent<Text>();
+        m_dieText = m_dieLayout.transform.GetChild(0).GetComponent<Text>();
         m_gameVoice = GetComponent<AudioSource>();
         m_screenFadeColor = m_blackScreen.color;
         m_screenFadeColor.a = 1f;
         m_textFadeColor = m_startText.color;
         m_textFadeColor.a = 0f;
 
-        if (YandexGame.EnvironmentData.language == "ru")
+        if (Application.systemLanguage == SystemLanguage.Russian)
         {
             m_language.value = 1;
         }
@@ -366,13 +412,45 @@ public class UIController : MonoBehaviour
     public void ChangeLanguage(int index)
     {
         m_langIndex = index;
-        YandexGame.SwitchLanguage(index == 1 ? "ru" : "en");
         TurnSubtitles(m_subtitlesOn);
 
+        int i = 0;
+        foreach (var button in m_settingButtons.GetComponentsInChildren<Text>())
+        {
+            button.text = m_settingsButtonsText[index][i];
+            i++;
+        }
+
+        i = 0;
+        foreach (var button in m_startMenuButtons.GetComponentsInChildren<Text>())
+        {
+            button.text = m_startButtonsText[index][i];
+            i++;
+        }
+        int j = 0;
+
+        for (i = 0; i < m_gameLayout.transform.childCount; i++)
+        {
+            foreach (var button in m_gameLayout.transform.GetChild(i).GetComponentsInChildren<Text>())
+            {
+                button.text = m_gameplayElementsText[index][j];
+                j++;
+            }
+        }
+
+        for (i = 0; i < m_audioLayout.transform.childCount; i++)
+        {
+            m_audioLayout.transform.GetChild(i).GetComponentInChildren<Text>().text = m_audioElementsText[index][i];
+        }
+
+        m_header.text = index == 0 ? "SETTINGS" : "РќРђРЎРўР РћР™РљР";
         m_gameName.sprite = index == 0 ? m_gameNameEng : m_gameNameRus;
+        m_startText.text = index == 0 ? "Start\n\rfighting" : "РќР°С‡РёРЅР°Р№С‚Рµ\n\rР±РѕР№";
+        m_winText.text = index == 0 ? "Player\n\rwins!" : "РРіСЂРѕРє\n\rРїРїРѕР±РµРґРёР»!";
+        m_dieText.text = index == 0 ? "YOU\n\rDIED" : "Р’Р«\n\rРЈРњР•Р Р›Р";
 
         PlayableAsset[] cutscenes = index == 0 ? m_timelinesEng : m_timelinesRus;
-        for (int i = 0; i < cutscenes.Length; i++)
+        for (i = 0; i < cutscenes.Length; i++)
         {
             m_cutscenes.transform.GetChild(i).GetComponent<PlayableDirector>().playableAsset = cutscenes[i];
         }
@@ -578,11 +656,11 @@ public class UIController : MonoBehaviour
         {
             if (m_input.GetCurrentControlScheme() == "Gamepad")
             {
-                m_restartText.text = m_langIndex == 0 ? "Press A to restart" : "Нажмите А, чтобы начать заново";
+                m_restartText.text = m_langIndex == 0 ? "Press A to restart" : "РќР°Р¶РјРёС‚Рµ Рђ, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ";
             }
             else
             {
-                m_restartText.text = m_langIndex == 0 ? "Press ENTER to restart" : "Нажмите ENTER, чтобы начать заново";
+                m_restartText.text = m_langIndex == 0 ? "Press ENTER to restart" : "РќР°Р¶РјРёС‚Рµ ENTER, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ";
             }
         }
     }
@@ -614,7 +692,6 @@ public class UIController : MonoBehaviour
 
     public void Restart()
     {
-        YandexGame.ReviewShow(true);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
