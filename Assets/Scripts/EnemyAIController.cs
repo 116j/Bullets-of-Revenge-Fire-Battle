@@ -56,7 +56,7 @@ public class EnemyAIController : MonoBehaviour
 
     bool m_dead;
     bool m_hide = false;
-    float m_health = 4.8f;
+    float m_health = 3.2f;
     //current amount of bullets in the riffle
     int m_magazineStore;
     //timer for hide
