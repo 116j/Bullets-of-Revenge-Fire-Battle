@@ -15,7 +15,7 @@ public class EnemySpawner : MonoBehaviour
 
     readonly float m_spawnBreak = 1.5f;
     int m_amountToSpawn = 5;
-    int IncreaseAmount => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2 : 3;
+    int IncreaseAmount => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 1 : 2;
 
     static EnemySpawner m_instance;
     public static EnemySpawner Instance => m_instance;
