@@ -614,7 +614,7 @@ public class UIController : MonoBehaviour
 
     public void Restart()
     {
-        YandexGame.ReviewShow(true);
+        YandexGame.ReviewShow(false);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
