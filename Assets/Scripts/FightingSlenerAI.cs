@@ -53,8 +53,8 @@ public class FightingSlenerAI : MonoBehaviour
     readonly int m_HashDie = Animator.StringToHash("Die");
     readonly int m_HashWin = Animator.StringToHash("Win");
 
-    float LowerHitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.2f : 0.1f;
-    float UpperHitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.4f : 0.2f;
+    float LowerHitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.4f : 0.2f;
+    float UpperHitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.6f : 0.4f;
     //enemy block reaction
     float Reaction => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 1f;
     public bool Dead => m_dead;
