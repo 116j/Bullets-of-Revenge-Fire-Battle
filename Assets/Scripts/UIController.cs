@@ -186,7 +186,7 @@ public class UIController : MonoBehaviour
         },
         new string[]
         {
-            "Начать","Настройки","Выйти"
+            "Начать игру","Настройки","Выйти"
         }
     };
     readonly string[][] m_settingsButtonsText =
@@ -446,7 +446,7 @@ public class UIController : MonoBehaviour
         m_header.text = index == 0 ? "SETTINGS" : "НАСТРОЙКИ";
         m_gameName.sprite = index == 0 ? m_gameNameEng : m_gameNameRus;
         m_startText.text = index == 0 ? "Start\n\rfighting" : "Начинайте\n\rбой";
-        m_winText.text = index == 0 ? "Player\n\rwins!" : "Игрок\n\rппобедил!";
+        m_winText.text = index == 0 ? "Player\n\rwins!" : "Игрок\n\rпобедил!";
         m_dieText.text = index == 0 ? "YOU\n\rDIED" : "ВЫ\n\rУМЕРЛИ";
 
         PlayableAsset[] cutscenes = index == 0 ? m_timelinesEng : m_timelinesRus;
