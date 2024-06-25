@@ -39,6 +39,7 @@ public class FightingSlenerAI : MonoBehaviour
     readonly float m_lowerBlockDist = 1.72f;
     readonly float m_runawayDist = 0.85f;
     readonly int m_attackCount = 2;
+    readonly float m_runAwayReaction = 0.5f;
 
     //hashes for animator parameters
     readonly int m_HashVertical = Animator.StringToHash("Vertical");
@@ -100,7 +101,7 @@ public class FightingSlenerAI : MonoBehaviour
             }
             else if (!m_rightBound && Vector3.Distance(transform.position, m_player.transform.position) <= m_runawayDist)
             {
-                m_runAway = Random.Range(0.1f, Reaction);
+                m_runAway = Random.Range(0.1f, m_runAwayReaction);
                 m_move = -1;
             }
             else
@@ -116,13 +117,13 @@ public class FightingSlenerAI : MonoBehaviour
                     case FightingStatus.UpperBlock:
                     case FightingStatus.MiddleBlock:
                     case FightingStatus.Hit:
-                        if (m_rightBound&&Random.value>0.6f)
+                        if (m_rightBound && Random.value > 0.6f)
                         {
                             m_move = 1;
                         }
-                        else if (m_leftBound&&Random.value > 0.6f)
+                        else if (m_leftBound && Random.value > 0.75f)
                         {
-                            m_runAway = Random.Range(0.1f, Reaction);
+                            m_runAway = Random.Range(0.1f, m_runAwayReaction);
                             m_move = -1;
                         }
                         else
@@ -151,13 +152,13 @@ public class FightingSlenerAI : MonoBehaviour
                         break;
                     //Randomly block player attack or move away
                     default:
-                        if (Random.value < 0.8f)
+                        if (Random.value < 0.95f)
                             StartCoroutine(Block(Reaction,
                                 m_player.PlayerStatus == FightingStatus.LowerAttack, m_player.PlayerStatus == FightingStatus.MiddleAttack));
                         else if (!m_rightBound)
                         {
                             m_move = -1;
-                            m_runAway = Random.Range(0.1f, Reaction);
+                            m_runAway = Random.Range(0.1f, m_runAwayReaction);
                         }
                         break;
                 }
@@ -196,7 +197,7 @@ public class FightingSlenerAI : MonoBehaviour
                     }
                     else if (rnd < 0.95f && !m_anim.IsInTransition(0) && !m_rightBound)
                     {
-                        m_runAway = Random.Range(0.1f, Reaction);
+                        m_runAway = Random.Range(0.1f, m_runAwayReaction);
                         m_move = -1;
                     }
                     else if (m_anim.IsInTransition(0) && !m_leftBound)
@@ -222,9 +223,9 @@ public class FightingSlenerAI : MonoBehaviour
                     {
                         m_move = 1;
                     }
-                    else if (!m_anim.IsInTransition(0) && !m_rightBound)
+                    else if (!m_anim.IsInTransition(0) && !m_rightBound&&Random.value > 0.95f)
                     {
-                        m_runAway = Random.Range(0.1f, Reaction);
+                        m_runAway = Random.Range(0.1f, m_runAwayReaction);
                         m_move = -1;
                     }
                 }

@@ -140,7 +140,7 @@ public class ShooterPlayerController : MonoBehaviour
 
         m_healthBar.maxValue = m_health;
         Restart();
-         //m_input.LockInput();
+        //m_input.LockInput();
     }
 
     /// <summary>
@@ -155,12 +155,8 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (m_input.Fire)
             {
-                if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit" ||
-                    m_isCrouched && !m_aimCrouched && m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Aiming")
-                {
-                    Fire();
-                    m_input.SetFireDone();
-                }
+                Fire();
+                m_input.SetFireDone();
             }
 
             Move();
@@ -427,7 +423,6 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Fire()
     {
-
         if (m_isAiming)
         {
             m_gun.Fire(m_aimTarget);
@@ -490,7 +485,7 @@ public class ShooterPlayerController : MonoBehaviour
         if (!m_dead)
         {
             Hit();
-           // Debug.Log("PLAYER HIT");
+            // Debug.Log("PLAYER HIT");
         }
     }
 
