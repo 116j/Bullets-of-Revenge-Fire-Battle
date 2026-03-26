@@ -1,4 +1,4 @@
-using Cinemachine;
+﻿using Cinemachine;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.Rendering;
@@ -55,6 +55,7 @@ public class ShooterPlayerController : MonoBehaviour
     //if player is crouching
     bool m_isCrouched = false;
     bool m_aimCrouched = false;
+    bool m_recovering = false;
     //health points left
     float m_health = 10;
 
@@ -77,7 +78,8 @@ public class ShooterPlayerController : MonoBehaviour
     //a speed for the camera turn change
     readonly float m_cameraTurn = 7f;
     //a speed of the camera rotation
-    readonly float m_cameraRotationSpeed = 80f;
+    readonly float m_cameraRotationSpeed = 100;
+    readonly float m_aimRotationSpeed = 30f;
     //the distance of the aim traget
     readonly float m_aimDistance = 30f;
     //a value of an y-axis rotation in aim camera
@@ -89,9 +91,10 @@ public class ShooterPlayerController : MonoBehaviour
     //height of the camera offset when the player crouches
     readonly float m_crouchOffset = 0.4f;
     //max step per frame for gun rig movement
-    readonly float m_gunRotationStep = 0.5f;
-    readonly float m_vignetteMax = 0.8f;
+    readonly float m_gunRotationStep = 0.2f;
+    readonly float m_vignetteMax = 1f;
     readonly float m_vignetteMin = 0.48f;
+    readonly float m_recoverTime = 1f;
 
     //start gun rig rotations
     Quaternion m_baseTR;
@@ -117,6 +120,7 @@ public class ShooterPlayerController : MonoBehaviour
     Vector3 m_cameraChange;
     //vector of aim camera rotation
     Vector3 m_aimTarget;
+    float m_recoverTimer;
 
     //step per frame for gun rig movement
     float m_gunRotation;
@@ -143,6 +147,19 @@ public class ShooterPlayerController : MonoBehaviour
         //m_input.LockInput();
     }
 
+    private void Update()
+    {
+        if (m_recovering)
+        {
+            m_recoverTimer += Time.deltaTime;
+            if (m_recoverTimer > m_recoverTime)
+            {
+                m_recoverTimer = 0;
+                m_recovering = false;
+            }
+        }
+    }
+
     /// <summary>
     /// Update player physics and animations
     /// </summary>
@@ -155,8 +172,12 @@ public class ShooterPlayerController : MonoBehaviour
 
             if (m_input.Fire)
             {
-                Fire();
-                m_input.SetFireDone();
+                if (m_anim.GetCurrentAnimatorClipInfo(1)[0].clip.name != "Hit" ||
+                    m_isCrouched && !m_aimCrouched && m_anim.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Aiming")
+                {
+                    Fire();
+                    m_input.SetFireDone();
+                }
             }
 
             Move();
@@ -206,13 +227,14 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void MoveCamera()
     {
-        m_cameraPitch += m_input.Look.y * Time.deltaTime * m_cameraRotationSpeed;
-        m_cameraYaw += m_input.Look.x * Time.deltaTime * m_cameraRotationSpeed;
+        float cameraSpeed = m_isAiming ? m_aimRotationSpeed : m_cameraRotationSpeed;
+        m_cameraPitch += m_input.Look.y * Time.deltaTime* cameraSpeed;
+        m_cameraYaw += m_input.Look.x * Time.deltaTime* cameraSpeed;
 
         //borders for vertical movement
         m_cameraPitch = Mathf.Clamp(m_cameraPitch, m_lowerCameraBorder, m_upperCameraBorder);
         //smoothly rotate transform
-        m_cameraChange = Vector3.Slerp(m_cameraChange, new Vector3(m_cameraPitch, m_cameraYaw, 0f), Time.deltaTime * m_cameraTurn);
+        m_cameraChange = Vector3.Slerp(m_cameraChange, new Vector3(m_cameraPitch , m_cameraYaw , 0f), Time.deltaTime * m_cameraTurn);
         m_moveCameraTarget.rotation = Quaternion.Euler(m_cameraChange);
         m_aimCameraTarget.rotation = Quaternion.Euler(m_cameraChange + Vector3.up * m_aimPitchOffset);
 
@@ -224,19 +246,19 @@ public class ShooterPlayerController : MonoBehaviour
             //calculate offset
             if (Mathf.Abs(aimDir.x) > 0.02f)
             {
-                m_gunRotation = Mathf.Abs(aimDir.x) <= m_gunRotationStep ? aimDir.x : (m_gunRotationStep * Mathf.Sign(aimDir.x) * Time.deltaTime * Mathf.Sign(m_aimTarget.z - transform.position.z) * m_cameraRotationSpeed);
+                m_gunRotation = Mathf.Abs(aimDir.x) <= m_gunRotationStep ? aimDir.x : (m_gunRotationStep * Mathf.Sign(aimDir.x) * Time.deltaTime * Mathf.Sign(m_aimTarget.z - transform.position.z) * m_aimRotationSpeed);
                 m_LYaw += m_gunRotation;
                 m_RYaw += m_gunRotation;
             }
             if (Mathf.Abs(aimDir.y) > 0.02f)
             {
-                m_gunRotation = Mathf.Abs(aimDir.y) <= m_gunRotationStep ? aimDir.y : (m_gunRotationStep * Mathf.Sign(aimDir.y) * Time.deltaTime * m_cameraRotationSpeed);
+                m_gunRotation = Mathf.Abs(aimDir.y) <= m_gunRotationStep ? aimDir.y : (m_gunRotationStep * Mathf.Sign(aimDir.y) * Time.deltaTime * m_aimRotationSpeed);
                 m_LPitch += m_gunRotation;
                 m_RPitch += m_gunRotation;
             }
             //move gun rigs
-            m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_RPitch, m_TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_cameraRotationSpeed);
-            m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_LPitch, m_TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_cameraRotationSpeed);
+            m_TargetR.localRotation = Quaternion.Slerp(m_TargetR.localRotation, Quaternion.Euler(m_RPitch, m_TargetR.localRotation.eulerAngles.y, m_RYaw), Time.deltaTime * m_aimRotationSpeed);
+            m_TargetL.localRotation = Quaternion.Slerp(m_TargetL.localRotation, Quaternion.Euler(m_LPitch, m_TargetL.localRotation.eulerAngles.y, m_LYaw), Time.deltaTime * m_aimRotationSpeed);
             if (Vector3.Angle(m_gun.BarrelLocation.forward, (m_aimTarget - m_gun.BarrelLocation.position).normalized) >= 15f)
             {
                 ResetAim();
@@ -362,7 +384,7 @@ public class ShooterPlayerController : MonoBehaviour
 
         if (!Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, m_aimDistance, LayerMask.GetMask("Enemy")))
         {
-            if (Physics.SphereCast(Camera.main.transform.position, 0.3f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
+            if (Physics.SphereCast(Camera.main.transform.position, 0.5f, Camera.main.transform.forward, out RaycastHit hitInfo, m_aimDistance, LayerMask.GetMask("Enemy")))
             {
                 //var rotateDir = Vector3.RotateTowards(Camera.main.transform.forward, new Vector3(hitInfo.collider.transform.position.x, hitInfo.point.y, hitInfo.point.z) - Camera.main.transform.position, Time.fixedDeltaTime * m_cameraTurn, 0f).normalized;
                 ////if the nearest enemy is not close, move aiming camera
@@ -423,7 +445,6 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Fire()
     {
-
         if (m_isAiming)
         {
             m_gun.Fire(m_aimTarget);
@@ -455,17 +476,22 @@ public class ShooterPlayerController : MonoBehaviour
     /// </summary>
     void Hit()
     {
-        AddHealth(-HitPoint);
-        if (m_health <= 0)
+        if (!m_dead && !m_recovering)
         {
-            Aim(false);
-            m_dead = true;
-            m_input.Die();
-        }
-        else
-        {
-            m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
-            m_anim.SetTrigger(m_HashHit);
+            AddHealth(-HitPoint);
+            if (m_health <= 0)
+            {
+                Aim(false);
+                m_dead = true;
+                m_input.Die();
+            }
+            else
+            {
+                m_voice.PlayOneShot(m_hitSounds[Random.Range(0, m_hitSounds.Length)]);
+                m_anim.SetTrigger(m_HashHit);
+                m_recovering = true;
+
+            }
         }
     }
 

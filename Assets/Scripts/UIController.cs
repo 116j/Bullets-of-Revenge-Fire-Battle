@@ -692,6 +692,8 @@ public class UIController : MonoBehaviour
 
     public void Restart()
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

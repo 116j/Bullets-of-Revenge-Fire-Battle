@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -101,7 +101,7 @@ public class EnemyAIController : MonoBehaviour
     //step per frame for riffle rig movement
     float m_rifleRotation;
 
-    int RifleCapacity => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 30 : 50;
+    int RifleCapacity => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 10 : 30;
     //time when the player should stop hiding
     float WaitTime => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 2f : 4f;
     //how many point decrease from health when the enemy is hit
@@ -501,7 +501,7 @@ public class EnemyAIController : MonoBehaviour
         }
     }
     /// <summary>
-    /// Ataacks the player
+    /// Atacks the player
     /// </summary>
     void Attack()
     {

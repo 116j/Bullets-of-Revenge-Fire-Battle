@@ -12,7 +12,7 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: Eugenia Erm
+  companyName: E2Dev
   productName: 'Bullets of Revenge: Fire Battle'
   defaultCursor: {fileID: 2800000, guid: 684dce55c67827647943f33696ac22f1, type: 3}
   cursorHotspot: {x: 0, y: 0}
@@ -711,7 +711,7 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Shooter
-  metroPackageVersion: 
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -719,7 +719,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: Shooter
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: 'Bullets of Revenge: Fire Battle'
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0

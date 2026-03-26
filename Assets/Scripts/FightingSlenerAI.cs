@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,6 +29,8 @@ public class FightingSlenerAI : MonoBehaviour
     bool m_middleBlock = false;
     bool m_lowerBlock = false;
     bool m_dead = true;
+    bool m_recovering = false;
+    float m_recoverTimer = 0f;
 
     readonly float m_speed = 0.8f;
     //max attack and block dist
@@ -40,6 +42,7 @@ public class FightingSlenerAI : MonoBehaviour
     readonly float m_runawayDist = 0.85f;
     readonly int m_attackCount = 2;
     readonly float m_runAwayReaction = 0.5f;
+    readonly float m_recoverTime = 1.5f;
 
     //hashes for animator parameters
     readonly int m_HashVertical = Animator.StringToHash("Vertical");
@@ -78,6 +81,16 @@ public class FightingSlenerAI : MonoBehaviour
     void Update()
     {
         m_anim.SetBool(m_HashDie, m_dead);
+
+        if (m_recovering)
+        {
+            m_recoverTimer += Time.deltaTime;
+            if (m_recoverTimer > m_recoverTime)
+            {
+                m_recoverTimer = 0;
+                m_recovering = false;
+            }
+        }
 
         if (!m_dead)
         {
@@ -292,29 +305,33 @@ public class FightingSlenerAI : MonoBehaviour
 
     void Hit(int hitPart)
     {
-        m_health -= m_player?.PlayerStatus == FightingStatus.MiddleAttack ? UpperHitPoint : LowerHitPoint;
-        m_healthBar.value = m_health;
-        if (m_health <= 0)
+        if (!m_dead && !m_recovering)
         {
-            StartCoroutine(Block(0f, false, false));
-            m_dead = true;
-            m_healthBar.value = 0;
-        }
-        else
-        {
-            m_audio.PlayOneShot(m_hitSound);
-            if (!m_rightBound)
-                m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
-            m_anim.SetInteger(m_HashHitTarget, hitPart);
-            m_anim.SetTrigger(m_HashHit);
-            if (Random.value < 0.75f)
+            m_health -= m_player?.PlayerStatus == FightingStatus.MiddleAttack ? UpperHitPoint : LowerHitPoint;
+            m_healthBar.value = m_health;
+            if (m_health <= 0)
             {
-                StartCoroutine(Block(0f, hitPart == 2, hitPart == 1));
+                StartCoroutine(Block(0f, false, false));
+                m_dead = true;
+                m_healthBar.value = 0;
             }
             else
             {
-                Attack(m_player.PlayerStatus == FightingStatus.UpperBlock,
-                          m_player.PlayerStatus == FightingStatus.MiddleBlock);
+                m_audio.PlayOneShot(m_hitSound);
+                if (!m_rightBound)
+                    m_rb.MovePosition(m_rb.position - transform.forward * 0.1f);
+                m_anim.SetInteger(m_HashHitTarget, hitPart);
+                m_anim.SetTrigger(m_HashHit);
+                m_recovering = true;
+                if (Random.value < 0.75f)
+                {
+                    StartCoroutine(Block(0f, hitPart == 2, hitPart == 1));
+                }
+                else
+                {
+                    Attack(m_player.PlayerStatus == FightingStatus.UpperBlock,
+                              m_player.PlayerStatus == FightingStatus.MiddleBlock);
+                }
             }
         }
     }
@@ -328,12 +345,12 @@ public class FightingSlenerAI : MonoBehaviour
             Vector3 point = other.ClosestPoint(transform.position);
             //divide slender collider into 3 parts and check in which part collide point is
             float part = m_col.bounds.size.y / 3f;
-            if (m_col.bounds.min.y + part >= point.y && !m_lowerBlock)
+            if (m_col.bounds.min.y + 2 * part >= point.y && !m_lowerBlock)
             {
                 //  Debug.Log("Slender Lower hit");
                 Hit(2);
             }
-            else if (m_col.bounds.min.y + part < point.y && !m_middleBlock)
+            else if (m_col.bounds.max.y -  part < point.y && !m_middleBlock)
             {
                 // Debug.Log("Slender Middle hit");
                 Hit(1);

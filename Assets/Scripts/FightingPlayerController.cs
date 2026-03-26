@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class FightingPlayerController : MonoBehaviour
@@ -42,6 +42,8 @@ public class FightingPlayerController : MonoBehaviour
     //if player is starting to go throw the enemy
     bool m_isGoingThrough = false;
     FightingSlenerAI m_enemy;
+    bool m_recovering = false;
+    float m_recoverTimer = 0f;
 
 
     readonly float m_runawayDist = 0.5f;
@@ -49,6 +51,7 @@ public class FightingPlayerController : MonoBehaviour
     readonly int m_upperHeadAttackCount = 4;
     readonly int m_attackCount = 2;
     readonly float m_speed = 3f;
+    readonly float m_recoverTime = 1.5f;
 
     public FightingStatus PlayerStatus => m_status;
     float HitPoint => UIController.Instance.GameDifficulty == GameDifficulty.Normal ? 0.3f : 0.7f;
@@ -80,6 +83,16 @@ public class FightingPlayerController : MonoBehaviour
     void Update()
     {
         m_anim.SetBool(m_HashDie, m_dead);
+
+        if (m_recovering)
+        {
+            m_recoverTimer += Time.deltaTime;
+            if (m_recoverTimer > m_recoverTime)
+            {
+                m_recoverTimer = 0f;
+                m_recovering = false;
+            }
+        }
 
         if (!m_dead && m_status != FightingStatus.None)
         {
@@ -202,19 +215,20 @@ public class FightingPlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // if player collides with enemy's hands and foots
-        if (!m_dead && other.gameObject.CompareTag("attack"))
+        if (!m_dead && other.gameObject.CompareTag("attack") && !m_recovering)
         {
             //collide point to detect hit part
             Vector3 point = other.ClosestPoint(transform.position);
             //divide playter collider into 3 parts and check in which part collide point is
             float part = m_col.bounds.size.y / 3f;
+            m_recovering = true;
             // if collide part has block, do nothing
             if (m_col.bounds.max.y - part <= point.y && !m_input.UpperBlock)
             {
                 // Debug.Log("Player Upper hit");
                 Hit(1);
             }
-            if (m_col.bounds.max.y - part > point.y && !m_input.MiddleBlock)
+            if (m_col.bounds.min.y + 2 * part > point.y && !m_input.MiddleBlock)
             {
                 // Debug.Log("Player Middle hit");
                 Hit(2);
