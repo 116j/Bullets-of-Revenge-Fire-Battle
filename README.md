@@ -1,8 +1,6 @@
-# Игра “Bullets of Revenge: Fire Battle”  
-##### Однопользовательская 3д игра, первая часть которой представляет шутер от 3 лица с укрытиями, а вторая часть является файтингом с видом с боку. 
- ---
- Описание игры:
- https://drive.google.com/file/d/15J674NLFXc_IQOoFwoED0MJ8RzHkz8ag/view?usp=drive_link  
-
- Ссылка на игру:
+# Game “Bullets of Revenge: Fire Battle”  
+##### A single-player 3D game, the first part of which is a 3-person shooter with shelters, and the second part is a side-view fighting game.. 
+ --- 
+ 
+Game link:
 https://e2dev.itch.io/bullets-of-revenge-fire-battle
